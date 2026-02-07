@@ -18,12 +18,16 @@ Follow this workflow for every task:
 8. **Success Criteria check** - Check the Issue's Success Criteria and update them, address any unmet criteria. Append the check results to the PR body
 9. **PR review** - Request review, address feedback
 10. **Approval** - Wait for developer approval of the PR
-11. **Merge** - Merge to main (using squash merge), delete the work branch, and run `git fetch --prune` to clean up stale remote tracking branches
+11. **Merge** - Merge to main (using squash merge), remove the worktree (`git worktree remove <branch-name>`), delete the work branch, and run `git fetch --prune` to clean up stale remote tracking branches
 12. **Done**
 
 ## Issue Format
 
 **Title:** Use user story format: "As a [role], I want [goal] so that [benefit]"
+
+- [goal] must be the user's desired outcome, not a technical means or implementation detail
+- Good: "I want to run multiple tasks in parallel"
+- Bad: "I want a bare repo + worktree structure"
 
 **Body:**
 
@@ -45,9 +49,10 @@ Follow this workflow for every task:
 
 ## Branch Strategy
 
-- Always branch from the latest `main`
-- Branch name must describe the purpose of the work using only hyphen-separated words
-- Examples: `create-claude-md`, `add-user-authentication`, `fix-login-error`
+- Create a worktree from the latest `main`: `git worktree add <branch-name> -b <branch-name> main`
+- Branch name must describe the user's goal, not the implementation approach, using only hyphen-separated words
+- Good: `parallel-claude-code-tasks`, `faster-test-feedback`
+- Bad: `setup-bare-repo-worktree`, `refactor-module-to-class`
 
 ## Commit Conventions
 
@@ -81,6 +86,52 @@ Closes #{issue number}
 ## Success Criteria Check
 {Check results appended after success criteria check step}
 ```
+
+## Worktree
+
+This repository uses a bare repo + worktree structure to enable parallel Claude Code instances.
+
+### Directory Layout
+
+```
+ciya-dev/
+├── .bare/             # bare repository (metadata only)
+├── .git               # pointer file to .bare
+├── main/              # main branch worktree
+├── feature-branch/    # work branch worktree
+└── another-branch/    # work branch worktree
+```
+
+### Setup (first time)
+
+```bash
+mkdir ciya-dev && cd ciya-dev
+git clone --bare https://github.com/lovaizu/ciya-dev.git .bare
+echo "gitdir: ./.bare" > .git
+git worktree add main main
+```
+
+### Creating a Work Worktree
+
+```bash
+cd /path/to/ciya-dev
+git worktree add <branch-name> -b <branch-name> main
+```
+
+### Removing a Work Worktree
+
+```bash
+cd /path/to/ciya-dev
+git worktree remove <branch-name>
+git branch -d <branch-name>
+```
+
+### Rules
+
+- Worktree directory name must match the branch name
+- Do not modify the `main` worktree directly — always work in a branch worktree
+- Before creating a new worktree, update the local main: `git fetch origin main:main`
+- Run `git worktree list` to check active worktrees before creating a new one
 
 ## PR Review Process
 
