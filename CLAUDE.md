@@ -14,10 +14,12 @@ Follow this workflow for every task:
 4. **PR description** - Draft the PR title and body
 5. **Approval** - Wait for developer approval of the PR description
 6. **Implementation** - Write code, make commits, push the branch
-7. **PR review** - Request review, address feedback
-8. **Approval** - Wait for developer approval of the PR
-9. **Merge** - Merge to main and delete the work branch
-10. **Done**
+7. **Expert review** - Identify the technical domain of the deliverable, get expert review and feedback, improve accordingly. Append the review results to the PR body
+8. **Success Criteria check** - Check the Issue's Success Criteria and update them, address any unmet criteria. Append the check results to the PR body
+9. **PR review** - Request review, address feedback
+10. **Approval** - Wait for developer approval of the PR
+11. **Merge** - Merge to main and delete the work branch
+12. **Done**
 
 ## Issue Format
 
@@ -63,6 +65,8 @@ Follow this workflow for every task:
 **Body:**
 
 ```
+Closes #{issue number}
+
 ## Approach
 {Solution strategy and design decisions}
 
@@ -70,6 +74,12 @@ Follow this workflow for every task:
 - [ ] {Task}
 - [ ] {Task}
 - [ ] {Task}
+
+## Expert Review
+{Review results appended after expert review step}
+
+## Success Criteria Check
+{Check results appended after success criteria check step}
 ```
 
 ## PR Review Process
