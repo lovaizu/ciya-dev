@@ -52,7 +52,7 @@ Follow this workflow for every task:
 - Create a worktree from the latest `main`: `git worktree add <branch-name> -b <branch-name> main`
 - Branch name must describe the user's goal, not the implementation approach, using only hyphen-separated words
 - Good: `parallel-claude-code-tasks`, `faster-test-feedback`
-- Bad: `setup-bare-repo-worktree`, `add-jest-config`
+- Bad: `setup-bare-repo-worktree`, `refactor-module-to-class`
 
 ## Commit Conventions
 
@@ -123,12 +123,14 @@ git worktree add <branch-name> -b <branch-name> main
 ```bash
 cd /path/to/ciya-dev
 git worktree remove <branch-name>
+git branch -d <branch-name>
 ```
 
 ### Rules
 
 - Worktree directory name must match the branch name
 - Do not modify the `main` worktree directly — always work in a branch worktree
+- Before creating a new worktree, update the local main: `git fetch origin main:main`
 - Run `git worktree list` to check active worktrees before creating a new one
 
 ## PR Review Process
