@@ -18,7 +18,7 @@ Follow this workflow for every task:
 8. **Success Criteria check** - Check the Issue's Success Criteria and update them, address any unmet criteria. Append the check results to the PR body
 9. **PR review** - Request review, address feedback
 10. **Approval** - Wait for developer approval of the PR
-11. **Merge** - Merge to main (using squash merge) and delete the work branch
+11. **Merge** - Merge to main (using squash merge), delete the work branch, and run `git fetch --prune` to clean up stale remote tracking branches
 12. **Done**
 
 ## Issue Format
