@@ -12,8 +12,8 @@ curl -fsSL https://raw.githubusercontent.com/lovaizu/ciya-dev/main/scripts/up.sh
 ### 2. Start a task
 
 ```bash
-cd ciya-dev/main
-scripts/hi.sh <branch-name>
+cd ciya-dev
+./main/scripts/hi.sh <branch-name>
 ```
 
 This creates a worktree, enters it, and starts Claude Code. Then type `/go` to begin the workflow.
@@ -28,9 +28,9 @@ This creates a worktree, enters it, and starts Claude Code. Then type `/go` to b
 
 ### 4. Clean up
 
-After merging, remove the worktree from the `main` worktree:
+After merging, remove the worktree:
 
 ```bash
-cd ciya-dev/main
-scripts/bb.sh <branch-name-or-path>
+cd ciya-dev
+./main/scripts/bb.sh <branch-name-or-path>
 ```
