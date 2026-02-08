@@ -17,7 +17,7 @@ Follow this workflow for every task:
 7. **Implementation** - Write code, make commits, push the branch, and create the PR (`gh pr create`)
 8. **Consistency check** - Verify all issue and PR sections are consistent with each other: issue title goal matches Benefit, each SC maps to a Benefit, PR Approach addresses each Pain, PR Tasks are traceable to Approach. If any section was updated during earlier steps, re-check all
 9. **Expert review** - Identify the technical domain of the deliverable and simulate a review from a domain expert perspective. Evaluate correctness, best practices, and potential issues. Fix any problems found, then append the review results to the PR body
-10. **Success Criteria check** - Check the Issue's Success Criteria and update them, address any unmet criteria. Append the check results to the PR body
+10. **Success Criteria check** - Check the Issue's Success Criteria and update them, address any unmet criteria. Prefer execution over inspection; use inspection only when execution is not feasible. Append the check results to the PR body
 11. **PR review** - Request review, address feedback
 12. **Approval** - Wait for developer approval of the PR
 13. **Merge** - Verify the PR is approved (`gh pr view <number> --json reviewDecision` must return `APPROVED`). If not `APPROVED`, confirm with the developer before proceeding. Merge to main (using squash merge), remove the worktree (`git worktree remove <branch-name>`), delete the work branch, and run `git fetch --prune` to clean up stale remote tracking branches
@@ -97,9 +97,15 @@ Closes #{issue number}
 
 ## Success Criteria Check
 
-| Criterion | Status | Method | Evidence |
+Prefer Executed over Inspected. Use Inspected only when execution is not feasible.
+
+| Criterion | Status | Method | Judgment |
 |-----------|--------|--------|----------|
-| {SC from the issue} | {OK/NG} | {Executed/Inspected} | {What was done and what was observed} |
+| {SC from the issue} | {OK/NG} | {Executed/Inspected} | {See format below} |
+
+Judgment format by method:
+- Executed: "Ran {what}. Got {result}. {Why this means OK or NG}"
+- Inspected: "Cannot execute because {reason}. Inspected {what instead}. {Why this means OK or NG}"
 ```
 
 ## Worktree
