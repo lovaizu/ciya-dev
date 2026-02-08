@@ -16,4 +16,4 @@ git config remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*"
 git fetch origin
 git worktree add main main
 
-echo "Done! Run: cd $dir/main && scripts/hi.sh <branch-name>"
+echo "Done! Run: cd $dir && ./main/scripts/hi.sh <branch-name or path>"
