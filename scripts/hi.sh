@@ -10,7 +10,7 @@ branch="$1"
 worktree_root="$(cd "$(dirname "$0")/../.." && pwd)"
 
 cd "$worktree_root"
-git fetch origin
+git -C "$worktree_root/main" pull --ff-only origin main
 git worktree add "$branch" -b "$branch" origin/main
 
 cd "$worktree_root/$branch"

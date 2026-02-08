@@ -10,6 +10,7 @@ branch="$(basename "$1")"
 worktree_root="$(cd "$(dirname "$0")/../.." && pwd)"
 
 cd "$worktree_root"
+git -C "$worktree_root/main" pull --ff-only origin main
 git worktree remove "$branch"
 git branch -D "$branch"
 git remote prune origin
