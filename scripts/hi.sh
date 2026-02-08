@@ -18,6 +18,17 @@ fi
 
 worktree_dir="$worktree_root/$branch"
 
+# Source .env if it exists in the worktree
+if [ -f "$worktree_dir/.env" ]; then
+  set -a
+  # shellcheck disable=SC1091
+  source "$worktree_dir/.env"
+  set +a
+fi
+
+# Default ALLOWED_DOMAINS_FILE to the worktree's allowed-domains.txt
+export ALLOWED_DOMAINS_FILE="${ALLOWED_DOMAINS_FILE:-$worktree_dir/.claude/hooks/allowed-domains.txt}"
+
 if [ -d "$worktree_dir" ]; then
   # Resume existing worktree
   cd "$worktree_dir"

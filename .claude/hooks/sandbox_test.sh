@@ -6,7 +6,7 @@ HOOK="$SCRIPT_DIR/sandbox.sh"
 REPO_ROOT=$(cd "$SCRIPT_DIR/../.." && git rev-parse --show-toplevel)
 CWD="$REPO_ROOT"
 
-export ALLOWED_DOMAINS_FILE="$SCRIPT_DIR/allowed-domains.example.txt"
+export ALLOWED_DOMAINS_FILE="$SCRIPT_DIR/allowed-domains.txt"
 
 pass=0
 fail=0
