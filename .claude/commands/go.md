@@ -1,10 +1,34 @@
 Detect the current branch and resume or start the workflow.
 
-## If on main (or bare repo root)
+## If `$ARGUMENTS` is provided (a number)
+
+The argument is an issue or PR number. Determine what it refers to:
+
+1. Try `gh pr view $ARGUMENTS --json number,title,url,headRefName,body,state` first
+2. If that fails, try `gh issue view $ARGUMENTS --json number,title,url,body,state`
+3. If neither exists, tell the developer the number was not found
+
+### If the number is a PR
+
+- Read the PR details (title, body, branch, state)
+- Detect the current branch with `git branch --show-current`
+- If on the PR's branch: determine workflow status (same logic as "If on a feature branch" below) and resume
+- If on main or a different branch: tell the developer to switch to the PR's branch, suggesting `hi.sh <branch-name>` if the worktree doesn't exist yet
+
+### If the number is an issue
+
+- Read the issue details (title, body, state)
+- Detect the current branch with `git branch --show-current`
+- If on main: suggest creating a worktree with `hi.sh <branch-name>` (derive branch name from the issue's goal)
+- If on a feature branch: treat the issue as approved (step 3 done) and resume from step 4 (PR description drafting). Read the issue body to use as context for drafting the PR
+
+## If no `$ARGUMENTS` (no number provided)
+
+### If on main (or bare repo root)
 
 Ask the developer what they want to work on, then follow the workflow from step 1 (Hearing).
 
-## If on a feature branch
+### If on a feature branch
 
 1. Identify the branch name and find the associated issue and PR using `gh`:
    - `gh pr list --head <branch-name> --json number,title,url`
