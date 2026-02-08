@@ -13,7 +13,7 @@ Follow this workflow for every task:
 3. **Approval** - Wait for developer approval of the issue. If denied, revise based on feedback and re-propose
 4. **PR description** - Draft the PR title and body
 5. **Approval** - Wait for developer approval of the PR description. If denied, revise based on feedback and re-propose
-6. **Implementation** - Write code, make commits, push the branch, and create the PR (`gh pr create`)
+6. **Implementation** - Create an empty commit (`git commit --allow-empty`) and push the branch to create the PR (`gh pr create`) first, then write code and make commits
 7. **Consistency check** - Verify all issue and PR sections are consistent with each other: issue title goal matches Benefit, each SC maps to a Benefit, PR Approach addresses each Pain, PR Tasks are traceable to Approach. If any section was updated during earlier steps, re-check all
 8. **Expert review** - Identify the technical domain of the deliverable and simulate a review from a domain expert perspective. Evaluate correctness, best practices, and potential issues. Fix any problems found, then append the review results to the PR body
 9. **Success Criteria check** - Check the Issue's Success Criteria and update them, address any unmet criteria. Prefer execution over inspection; use inspection only when execution is not feasible. Append the check results to the PR body
