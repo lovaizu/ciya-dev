@@ -125,12 +125,7 @@ ciya-dev/
 ### Setup (first time)
 
 ```bash
-mkdir ciya-dev && cd ciya-dev
-git clone --bare https://github.com/lovaizu/ciya-dev.git .bare
-echo "gitdir: ./.bare" > .git
-git config remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*"
-git fetch origin
-git worktree add main main
+curl -fsSL https://raw.githubusercontent.com/lovaizu/ciya-dev/main/scripts/up.sh | bash
 ```
 
 ### Creating a Work Worktree
