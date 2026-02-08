@@ -6,11 +6,3 @@
 anthropic.com
 claude.ai
 sentry.io
-
-# GitHub - version control and CLI
-github.com
-githubusercontent.com
-
-# npm - package management
-npmjs.org
-npmjs.com

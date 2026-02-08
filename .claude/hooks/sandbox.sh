@@ -56,6 +56,22 @@ allow() {
 
 # ============================================================
 # Path checks
+#
+# Spec:
+#   Input:  file path string (absolute or relative to CWD)
+#   Steps:  1. If relative, prepend CWD
+#           2. Canonicalize with realpath -m (resolves .. and symlinks
+#              for existing components; does not require path to exist)
+#   Allow:  resolved path == REPO_ROOT or starts with REPO_ROOT/
+#   Deny:   resolved path is outside REPO_ROOT
+#
+# Self-protection spec:
+#   Protected paths:
+#     - $REPO_ROOT/.claude/hooks/*   (hook scripts)
+#     - $REPO_ROOT/.claude/settings.json
+#     - $REPO_ROOT/.claude/settings.local.json
+#   Deny:   Write/Edit/NotebookEdit targeting protected paths
+#   Allow:  Read targeting protected paths (read-only access is safe)
 # ============================================================
 
 check_path() {
@@ -91,6 +107,26 @@ check_self_protection() {
 
 # ============================================================
 # Network checks
+#
+# Domain list spec:
+#   Source: $ALLOWED_DOMAINS_FILE environment variable
+#   Format: one domain per line, # comments, empty lines ignored
+#   If ALLOWED_DOMAINS_FILE is unset or file not found: deny all
+#
+# Domain matching spec:
+#   - Case-insensitive comparison
+#   - Exact match: "github.com" matches "github.com"
+#   - Subdomain match: "api.github.com" matches entry "github.com"
+#   - Non-subdomain prefix does NOT match: "notgithub.com" does NOT
+#     match "github.com" (requires "." before the entry)
+#
+# URL domain extraction spec:
+#   Input:  URL string (e.g., https://user:pass@host:port/path)
+#   Steps:  1. Strip protocol (scheme://)
+#           2. Strip path (everything after first /)
+#           3. Strip credentials (everything before last @)
+#           4. Strip port (everything after first :)
+#   Output: hostname string
 # ============================================================
 
 load_allowed_domains() {
@@ -145,6 +181,37 @@ check_domain() {
 
 # ============================================================
 # Bash-specific checks
+#
+# Self-protection spec:
+#   Deny if command string contains: .claude/(hooks|settings.(json|local.json))
+#   Note: best-effort pattern match; can be bypassed via encoding/indirection
+#
+# Destructive command spec:
+#   Deny if command matches any of these patterns:
+#     - Disk:     \b(mkfs|fdisk|wipefs|parted)\b
+#     - Shutdown: \b(shutdown|reboot|poweroff|halt)\b
+#     - Init:     \binit\s+[06]\b
+#     - Firewall: \b(iptables|ip6tables|ufw)\b
+#     - Root rm:  \brm\s+(-rf|-fr)\s+/($|\s|\*)  (only / and /*)
+#     - Device:   \bdd\b.*\bif=/dev/
+#     - Chmod:    \bchmod\s+(-R\s+)?777\s+/
+#     - Chown:    \bchown\s+.*root.*\s+/
+#     - Fork:     :\(\)\s*\{.*:\|:
+#     - Disk IO:  >\s*/dev/(sd|hd|nvme|vd)
+#   Note: word boundary match means "echo shutdown" is also denied
+#         (accepted false positive for safety)
+#
+# Network command spec:
+#   Trigger: command contains \b(curl|wget|ssh|scp|rsync|nc|ncat|
+#            netcat|telnet)\b or \bgit\s+clone\b
+#   Domain extraction:
+#     - URLs:  grep for https?://... and extract domain
+#     - Hosts: grep for user@host patterns (ssh/scp/rsync)
+#   Decision:
+#     - Domain found + in allowed list:     allow
+#     - Domain found + NOT in allowed list: deny
+#     - No domain extractable:             ask (passthrough to user)
+#     - ALLOWED_DOMAINS_FILE unset:        deny
 # ============================================================
 
 check_bash_self_protection() {
@@ -260,6 +327,16 @@ check_bash_network() {
 
 # ============================================================
 # Main dispatch
+#
+# Spec:
+#   Write/Edit:    self-protection → path check → allow
+#   Read:          path check → allow
+#   NotebookEdit:  self-protection → path check → allow
+#   Glob/Grep:     path check on .path param (if present) → allow
+#   WebFetch:      extract domain from .url → domain check → allow
+#   WebSearch:     allow (uses Anthropic infrastructure, no direct fetch)
+#   Bash:          self-protection → destructive check → network check → allow
+#   Other tools:   allow
 # ============================================================
 
 case "$TOOL_NAME" in
