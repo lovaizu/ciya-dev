@@ -2,16 +2,20 @@
 set -euo pipefail
 
 if [ $# -ne 1 ]; then
-  echo "Usage: hi.sh <branch-name>" >&2
+  echo "Usage: hi.sh <branch-name or path>" >&2
   exit 1
 fi
 
-branch="$1"
+branch="$(basename "$1")"
 worktree_root="$(cd "$(dirname "$0")/../.." && pwd)"
 
 cd "$worktree_root"
-git fetch origin
-git worktree add "$branch" -b "$branch" origin/main
+git -C "$worktree_root/main" pull --ff-only origin main
 
-cd "$worktree_root/$branch"
+if [ -d "$worktree_root/$branch" ]; then
+  cd "$worktree_root/$branch"
+else
+  git worktree add "$branch" -b "$branch" origin/main
+  cd "$worktree_root/$branch"
+fi
 exec claude
