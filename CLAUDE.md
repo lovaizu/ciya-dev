@@ -97,7 +97,7 @@ Closes #{issue number}
 
 ## Success Criteria Check
 
-Prefer Executed over Inspected. Use Inspected only when execution is not feasible.
+Execute the criterion as written first. If direct execution is truly not possible, explain why before falling back to alternatives.
 
 | Criterion | Status | Method | Judgment |
 |-----------|--------|--------|----------|
