@@ -13,7 +13,7 @@ Follow this workflow for every task:
 3. **Approval** - Wait for developer approval of the issue. If denied, revise based on feedback and re-propose
 4. **PR description** - Draft the PR title and body
 5. **Approval** - Wait for developer approval of the PR description. If denied, revise based on feedback and re-propose
-6. **Implementation** - Create a worktree (`git worktree add <branch-name> -b <branch-name> main`), write code, make commits, push the branch, and create the PR (`gh pr create`)
+6. **Implementation** - Create a worktree (`git fetch origin && git worktree add <branch-name> -b <branch-name> origin/main`), write code, make commits, push the branch, and create the PR (`gh pr create`)
 7. **Consistency check** - Verify all issue and PR sections are consistent with each other: issue title goal matches Benefit, each SC maps to a Benefit, PR Approach addresses each Pain, PR Tasks are traceable to Approach. If any section was updated during earlier steps, re-check all
 8. **Expert review** - Identify the technical domain of the deliverable and simulate a review from a domain expert perspective. Evaluate correctness, best practices, and potential issues. Fix any problems found, then append the review results to the PR body
 9. **Success Criteria check** - Check the Issue's Success Criteria and update them, address any unmet criteria. Append the check results to the PR body
@@ -57,7 +57,7 @@ Follow this workflow for every task:
 
 ## Branch Strategy
 
-- Create a worktree from the latest `main`: `git worktree add <branch-name> -b <branch-name> main`
+- Create a worktree from the latest `main`: `git fetch origin && git worktree add <branch-name> -b <branch-name> origin/main`
 - Branch name must describe the user's goal, not the implementation approach, using only hyphen-separated words
 - Good: `parallel-claude-code-tasks`, `faster-test-feedback`
 - Bad: `setup-bare-repo-worktree`, `refactor-module-to-class`
@@ -127,7 +127,7 @@ echo "gitdir: ./.bare" > .git
 
 ```bash
 cd /path/to/ciya-dev
-git worktree add <branch-name> -b <branch-name> main
+git fetch origin && git worktree add <branch-name> -b <branch-name> origin/main
 ```
 
 ### Removing a Work Worktree
@@ -142,7 +142,7 @@ git branch -d <branch-name>
 
 - Worktree directory name must match the branch name
 - Do not create a worktree for `main` — main is managed as a bare ref only
-- Before creating a new worktree, update the local main: `git fetch origin main:main`
+- Always branch from `origin/main` after `git fetch origin` to ensure the latest remote state
 - Run `git worktree list` to check active worktrees before creating a new one
 
 ## PR Review Process
