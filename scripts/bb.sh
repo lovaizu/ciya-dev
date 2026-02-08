@@ -7,14 +7,11 @@ if [ $# -ne 1 ]; then
 fi
 
 branch="$(basename "$1")"
-repo_root="$(cd "$(dirname "$0")/.." && pwd)"
+worktree_root="$(cd "$(dirname "$0")/../.." && pwd)"
 
-cd "$repo_root"
-git fetch origin
-git pull origin main
-
+cd "$worktree_root"
 git worktree remove "$branch"
 git branch -d "$branch"
-git fetch --prune
+git remote prune origin
 
 echo "Done! Removed worktree and branch: $branch"

@@ -7,13 +7,11 @@ if [ $# -ne 1 ]; then
 fi
 
 branch="$1"
-repo_root="$(cd "$(dirname "$0")/.." && pwd)"
+worktree_root="$(cd "$(dirname "$0")/../.." && pwd)"
 
-cd "$repo_root"
+cd "$worktree_root"
 git fetch origin
-git pull origin main
-
 git worktree add "$branch" -b "$branch" origin/main
 
-cd "$repo_root/$branch"
+cd "$worktree_root/$branch"
 exec claude
