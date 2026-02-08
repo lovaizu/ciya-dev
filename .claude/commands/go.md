@@ -20,7 +20,10 @@ The argument is an issue or PR number. Determine what it refers to:
 - Read the issue details (title, body, state)
 - Detect the current branch with `git branch --show-current`
 - If on main: suggest creating a worktree with `hi.sh <branch-name>` (derive branch name from the issue's goal)
-- If on a feature branch: treat the issue as approved (step 3 done) and resume from step 4 (PR description drafting). Read the issue body to use as context for drafting the PR
+- If on a feature branch:
+  - First check if a PR already exists for this branch: `gh pr list --head <branch-name> --json number,title,url`
+  - If a PR exists: determine workflow status (same logic as "If on a feature branch" below) and resume
+  - If no PR exists: treat the issue as approved (step 3 done) and resume from step 4 (PR description drafting). Read the issue body to use as context for drafting the PR
 
 ## If no `$ARGUMENTS` (no number provided)
 
