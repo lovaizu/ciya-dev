@@ -2,7 +2,11 @@
 # One domain per line. Subdomains are automatically matched.
 # Lines starting with # are comments.
 
-# Anthropic - Claude API and services
+# Anthropic - Claude API, platform, error reporting
 anthropic.com
 claude.ai
 sentry.io
+
+# GitHub - git operations, gh CLI, raw content
+github.com
+githubusercontent.com
