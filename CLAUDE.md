@@ -13,13 +13,13 @@ Follow this workflow for every task:
 3. **Approval** - Wait for developer approval of the issue. If denied, revise based on feedback and re-propose
 4. **PR description** - Draft the PR title and body
 5. **Approval** - Wait for developer approval of the PR description. If denied, revise based on feedback and re-propose
-6. **Implementation** - Create a worktree (`git fetch origin && git worktree add <branch-name> -b <branch-name> origin/main`), write code, make commits, push the branch, and create the PR (`gh pr create`)
+6. **Implementation** - Write code, make commits, push the branch, and create the PR (`gh pr create`)
 7. **Consistency check** - Verify all issue and PR sections are consistent with each other: issue title goal matches Benefit, each SC maps to a Benefit, PR Approach addresses each Pain, PR Tasks are traceable to Approach. If any section was updated during earlier steps, re-check all
 8. **Expert review** - Identify the technical domain of the deliverable and simulate a review from a domain expert perspective. Evaluate correctness, best practices, and potential issues. Fix any problems found, then append the review results to the PR body
-9. **Success Criteria check** - Check the Issue's Success Criteria and update them, address any unmet criteria. Append the check results to the PR body
+9. **Success Criteria check** - Check the Issue's Success Criteria and update them, address any unmet criteria. Prefer execution over inspection; use inspection only when execution is not feasible. Append the check results to the PR body
 10. **PR review** - Request review, address feedback
 11. **Approval** - Wait for developer approval of the PR
-12. **Merge** - Verify the PR is approved (`gh pr view <number> --json reviewDecision` must return `APPROVED`). If not `APPROVED`, confirm with the developer before proceeding. Merge to main (using squash merge), remove the worktree (`git worktree remove <branch-name>`), delete the work branch, and run `git fetch --prune` to clean up stale remote tracking branches
+12. **Merge** - Verify the PR is approved (`gh pr view <number> --json reviewDecision` must return `APPROVED`). If not `APPROVED`, confirm with the developer before proceeding. Squash-merge to main (`gh pr merge <number> --squash`). The developer will clean up the worktree and branch using `bb.sh`
 13. **Done**
 
 ## Issue Format
@@ -96,9 +96,15 @@ Closes #{issue number}
 
 ## Success Criteria Check
 
-| Criterion | Status | Method | Evidence |
+Execute the criterion as written first. If direct execution is truly not possible, explain why before falling back to alternatives.
+
+| Criterion | Status | Method | Judgment |
 |-----------|--------|--------|----------|
-| {SC from the issue} | {OK/NG} | {Executed/Inspected} | {What was done and what was observed} |
+| {SC from the issue} | {OK/NG} | {Executed/Inspected} | {See format below} |
+
+Judgment format by method:
+- Executed: "Ran {what}. Got {result}. {Why this means OK or NG}"
+- Inspected: "Cannot execute because {reason}. Inspected {what instead}. {Why this means OK or NG}"
 ```
 
 ## Worktree
@@ -111,6 +117,7 @@ This repository uses a bare repo + worktree structure to enable parallel Claude 
 ciya-dev/
 ├── .bare/             # bare repository (metadata only)
 ├── .git               # pointer file to .bare
+├── main/              # main branch worktree (always present)
 ├── feature-branch/    # work branch worktree
 └── another-branch/    # work branch worktree
 ```
@@ -118,34 +125,29 @@ ciya-dev/
 ### Setup (first time)
 
 ```bash
-mkdir ciya-dev && cd ciya-dev
-git clone --bare https://github.com/lovaizu/ciya-dev.git .bare
-echo "gitdir: ./.bare" > .git
-git config remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*"
-git fetch origin
+curl -fsSL https://raw.githubusercontent.com/lovaizu/ciya-dev/main/scripts/up.sh | bash
 ```
 
 ### Creating a Work Worktree
 
 ```bash
-cd /path/to/ciya-dev
-git fetch origin && git worktree add <branch-name> -b <branch-name> origin/main
+cd /path/to/ciya-dev/main
+scripts/hi.sh <branch-name>
 ```
 
 ### Removing a Work Worktree
 
 ```bash
-cd /path/to/ciya-dev
-git worktree remove <branch-name>
-git branch -d <branch-name>
+cd /path/to/ciya-dev/main
+scripts/bb.sh <branch-name-or-path>
 ```
 
 ### Rules
 
 - Worktree directory name must match the branch name
-- Do not create a worktree for `main` — main is managed as a bare ref only
-- Always branch from `origin/main` after `git fetch origin` to ensure the latest remote state
-- Run `git worktree list` to check active worktrees before creating a new one
+- The `main` worktree must always be present — it is the base for running scripts
+- Always run `hi.sh` / `bb.sh` from the `main` worktree
+- Do not modify the `main` worktree directly — always work in a branch worktree
 
 ## PR Review Process
 
