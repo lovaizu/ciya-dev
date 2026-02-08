@@ -13,13 +13,13 @@ Follow this workflow for every task:
 3. **Approval** - Wait for developer approval of the issue. If denied, revise based on feedback and re-propose
 4. **PR description** - Draft the PR title and body
 5. **Approval** - Wait for developer approval of the PR description. If denied, revise based on feedback and re-propose
-6. **Implementation** - Create a worktree (`git worktree add <branch-name> -b <branch-name> main`), write code, make commits, push the branch
-7. **Consistency check** - When any section of the issue or PR (situation, pain, benefit, SC, approach, tasks) has been updated, verify all related sections remain consistent before proceeding
+6. **Implementation** - Create a worktree (`git worktree add <branch-name> -b <branch-name> main`), write code, make commits, push the branch, and create the PR (`gh pr create`)
+7. **Consistency check** - Verify all issue and PR sections are consistent with each other: issue title goal matches Benefit, each SC maps to a Benefit, PR Approach addresses each Pain, PR Tasks are traceable to Approach. If any section was updated during earlier steps, re-check all
 8. **Expert review** - Identify the technical domain of the deliverable and simulate a review from a domain expert perspective. Evaluate correctness, best practices, and potential issues. Fix any problems found, then append the review results to the PR body
 9. **Success Criteria check** - Check the Issue's Success Criteria and update them, address any unmet criteria. Append the check results to the PR body
 10. **PR review** - Request review, address feedback
 11. **Approval** - Wait for developer approval of the PR
-12. **Merge** - Verify the PR is approved (`gh pr view <number> --json reviewDecision`). If not approved, confirm with the developer before proceeding. Merge to main (using squash merge), remove the worktree (`git worktree remove <branch-name>`), delete the work branch, and run `git fetch --prune` to clean up stale remote tracking branches
+12. **Merge** - Verify the PR is approved (`gh pr view <number> --json reviewDecision` must return `APPROVED`). If not `APPROVED`, confirm with the developer before proceeding. Merge to main (using squash merge), remove the worktree (`git worktree remove <branch-name>`), delete the work branch, and run `git fetch --prune` to clean up stale remote tracking branches
 13. **Done**
 
 ## Issue Format
@@ -48,6 +48,7 @@ Follow this workflow for every task:
 
 ## Success Criteria
 - [ ] {Condition that verifies the Benefit is achieved}
+- [ ] {Condition}
 
 - Must verify Benefit achievement, not describe tasks to complete
 - Good: "A developer can create a worktree and start parallel work by following the documented steps"
