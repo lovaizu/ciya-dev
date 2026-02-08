@@ -23,17 +23,6 @@
             "timeout": 10
           }
         ]
-      },
-      {
-        "matcher": "idle_prompt",
-        "hooks": [
-          {
-            "type": "command",
-            "command": ".claude/hooks/notify.sh",
-            "async": true,
-            "timeout": 10
-          }
-        ]
       }
     ]
   }

@@ -108,12 +108,12 @@ assert_eq "title" "Claude Code - Action Required" "$notification_title"
 assert_contains "message contains repo info" "ciya-dev:" "$notification_message"
 assert_contains "message contains detail" "Claude needs your permission to use Bash" "$notification_message"
 
-# ── Integration: Notification (idle_prompt, empty message) ───────
-echo "integration (Notification - idle_prompt):"
+# ── Integration: Notification (empty message fallback) ───────────
+echo "integration (Notification - empty message):"
 
 notification_title=""
 notification_message=""
-notify_main <<< '{"hook_event_name": "Notification", "notification_type": "idle_prompt", "message": "", "cwd": "."}'
+notify_main <<< '{"hook_event_name": "Notification", "notification_type": "permission_prompt", "message": "", "cwd": "."}'
 assert_eq "title" "Claude Code - Action Required" "$notification_title"
 assert_contains "message fallback" "Waiting for your input" "$notification_message"
 
