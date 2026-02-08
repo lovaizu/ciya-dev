@@ -5,7 +5,6 @@
 # Anthropic - Claude API and services
 anthropic.com
 claude.ai
-statsig.anthropic.com
 sentry.io
 
 # GitHub - version control and CLI

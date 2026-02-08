@@ -119,6 +119,9 @@ assert_decision "WebFetch allowed domain (github.com)" "allow" \
 assert_decision "WebFetch denied domain" "deny" \
   "$(mk_json WebFetch '{"url": "https://evil.example.com/malware", "prompt": "test"}')"
 
+assert_decision "WebFetch URL with credentials" "allow" \
+  "$(mk_json WebFetch '{"url": "https://user:pass@api.anthropic.com/v1/messages", "prompt": "test"}')"
+
 assert_decision "WebSearch (always allowed)" "allow" \
   "$(mk_json WebSearch '{"query": "test search"}')"
 
@@ -139,8 +142,11 @@ assert_decision "rm -rf /" "deny" \
 assert_decision "rm -rf /*" "deny" \
   "$(mk_json Bash '{"command": "rm -rf /*", "description": "test"}')"
 
-assert_decision "rm -rf (safe, project dir)" "allow" \
+assert_decision "rm -rf (safe, relative dir)" "allow" \
   "$(mk_json Bash '{"command": "rm -rf node_modules", "description": "test"}')"
+
+assert_decision "rm -rf (safe, absolute path in repo)" "allow" \
+  "$(mk_json Bash "{\"command\": \"rm -rf $REPO_ROOT/node_modules\", \"description\": \"test\"}")"
 
 assert_decision "mkfs.ext4" "deny" \
   "$(mk_json Bash '{"command": "mkfs.ext4 /dev/sda1", "description": "test"}')"

@@ -126,8 +126,8 @@ extract_domain_from_url() {
   local url="$1"
   local rest="${url#*://}"
   rest="${rest%%/*}"
-  rest="${rest%%:*}"
   rest="${rest##*@}"
+  rest="${rest%%:*}"
   echo "$rest"
 }
 
@@ -179,7 +179,7 @@ check_destructive_commands() {
   fi
 
   # rm -rf / or rm -rf /*
-  if echo "$cmd" | grep -qE '\brm\s+(-[a-zA-Z]*r[a-zA-Z]*f|-[a-zA-Z]*f[a-zA-Z]*r)\s+/(\.\..*|\*|[^.]|$)'; then
+  if echo "$cmd" | grep -qE '\brm\s+(-[a-zA-Z]*r[a-zA-Z]*f|-[a-zA-Z]*f[a-zA-Z]*r)\s+/(\s|$|\*)'; then
     deny "Destructive command denied: recursive force delete at root level"
   fi
 
