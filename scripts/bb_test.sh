@@ -57,6 +57,12 @@ exit_code=0
 bash "$tmp/ciya-dev/main/scripts/bb.sh" 2>/dev/null || exit_code=$?
 check "exits non-zero without arguments" test "$exit_code" -ne 0
 
+# --- Test: too many arguments ---
+echo "--- bb.sh: too many arguments ---"
+exit_code=0
+bash "$tmp/ciya-dev/main/scripts/bb.sh" arg1 arg2 2>/dev/null || exit_code=$?
+check "exits non-zero with two arguments" test "$exit_code" -ne 0
+
 # --- Test: removes worktree and branch ---
 echo "--- bb.sh: removes worktree and branch ---"
 (cd "$tmp/ciya-dev" && git worktree add test-branch -b test-branch origin/main >/dev/null 2>&1)

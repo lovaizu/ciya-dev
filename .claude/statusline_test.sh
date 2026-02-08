@@ -57,3 +57,18 @@ input='{"workspace":{},"model":{},"context_window":{},"cost":{}}'
 actual=$(echo "$input" | bash -c "cd '$tmp/repo' && bash '$SCRIPT_DIR/statusline.sh'")
 expected=" (test-main) [Unknown] [in:0k out:0k] [\$0.0] [ctx:0%]"
 assert_eq "uses defaults for missing fields" "$expected" "$actual"
+
+# --- Test: not in a git repo (branch is empty) ---
+echo "--- statusline.sh: not in git repo ---"
+mkdir -p "$tmp/not-a-repo"
+input='{"workspace":{"current_dir":"/home/user/not-a-repo"},"model":{"display_name":"Opus"},"context_window":{"total_input_tokens":1000,"total_output_tokens":500,"used_percentage":10},"cost":{"total_cost_usd":0.5}}'
+actual=$(echo "$input" | bash -c "cd '$tmp/not-a-repo' && bash '$SCRIPT_DIR/statusline.sh'")
+expected="not-a-repo () [Opus] [in:1k out:1k] [\$0.5] [ctx:10%]"
+assert_eq "branch is empty outside git repo" "$expected" "$actual"
+
+# --- Test: integer ctx percentage (no decimal point) ---
+echo "--- statusline.sh: integer ctx percentage ---"
+input='{"workspace":{"current_dir":"/home/user/proj"},"model":{"display_name":"Opus"},"context_window":{"total_input_tokens":5000,"total_output_tokens":2000,"used_percentage":100},"cost":{"total_cost_usd":3}}'
+actual=$(echo "$input" | bash -c "cd '$tmp/repo' && bash '$SCRIPT_DIR/statusline.sh'")
+expected="proj (test-main) [Opus] [in:5k out:2k] [\$3.0] [ctx:100%]"
+assert_eq "handles integer ctx percentage" "$expected" "$actual"
