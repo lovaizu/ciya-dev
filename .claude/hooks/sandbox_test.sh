@@ -243,17 +243,11 @@ assert_decision "WebSearch: always allowed" "allow" \
 echo "=== Network: ALLOWED_DOMAINS_FILE unset ==="
 # ============================================================
 
-(
-  unset ALLOWED_DOMAINS_FILE
-  assert_decision "WebFetch: ALLOWED_DOMAINS_FILE unset" "deny" \
-    "$(mk_json WebFetch '{"url": "https://api.anthropic.com/v1", "prompt": "test"}')"
-)
+ALLOWED_DOMAINS_FILE="" assert_decision "WebFetch: ALLOWED_DOMAINS_FILE unset" "deny" \
+  "$(mk_json WebFetch '{"url": "https://api.anthropic.com/v1", "prompt": "test"}')"
 
-(
-  unset ALLOWED_DOMAINS_FILE
-  assert_decision "Bash curl: ALLOWED_DOMAINS_FILE unset" "deny" \
-    "$(mk_json Bash '{"command": "curl https://api.anthropic.com", "description": "test"}')"
-)
+ALLOWED_DOMAINS_FILE="" assert_decision "Bash curl: ALLOWED_DOMAINS_FILE unset" "deny" \
+  "$(mk_json Bash '{"command": "curl https://api.anthropic.com", "description": "test"}')"
 
 # ============================================================
 echo "=== Bash destructive: disk operations ==="
@@ -273,6 +267,9 @@ assert_decision "parted /dev/sda" "deny" \
 
 assert_decision "dd if=/dev/zero of=/dev/sda" "deny" \
   "$(mk_json Bash '{"command": "dd if=/dev/zero of=/dev/sda bs=1M", "description": "test"}')"
+
+assert_decision "dd of=/dev/sda (without if=/dev/)" "deny" \
+  "$(mk_json Bash '{"command": "dd of=/dev/sda bs=1M", "description": "test"}')"
 
 assert_decision "> /dev/sda (overwrite device)" "deny" \
   "$(mk_json Bash '{"command": "echo x > /dev/sda", "description": "test"}')"

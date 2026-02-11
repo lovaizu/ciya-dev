@@ -16,8 +16,15 @@ set -euo pipefail
 # ============================================================
 
 INPUT=$(cat)
-TOOL_NAME=$(echo "$INPUT" | jq -r '.tool_name')
-CWD=$(echo "$INPUT" | jq -r '.cwd')
+eval "$(echo "$INPUT" | jq -r '
+  @sh "TOOL_NAME=\(.tool_name // "")",
+  @sh "CWD=\(.cwd // "")",
+  @sh "FILE_PATH=\(.tool_input.file_path // "")",
+  @sh "NOTEBOOK_PATH=\(.tool_input.notebook_path // "")",
+  @sh "INPUT_PATH=\(.tool_input.path // "")",
+  @sh "URL_FIELD=\(.tool_input.url // "")",
+  @sh "COMMAND_STR=\(.tool_input.command // "")"
+')"
 
 REPO_ROOT=$(cd "$CWD" && git rev-parse --show-toplevel 2>/dev/null) || {
   echo '{"hookSpecificOutput":{"hookEventName":"PreToolUse","permissionDecision":"deny","permissionDecisionReason":"Cannot determine repository root"}}' >&1
@@ -208,7 +215,7 @@ check_domain() {
 #     - Init:     \binit\s+[06]\b
 #     - Firewall: \b(iptables|ip6tables|ufw)\b
 #     - Root rm:  \brm\s+(-rf|-fr)\s+/($|\s|\*)  (only / and /*)
-#     - Device:   \bdd\b.*\bif=/dev/
+#     - Device:   \bdd\b.*\b(if|of)=/dev/
 #     - Chmod:    \bchmod\s+(-R\s+)?777\s+/
 #     - Chown:    \bchown\s+.*root.*\s+/
 #     - Fork:     :\(\)\s*\{.*:\|:
@@ -274,9 +281,9 @@ check_destructive_commands() {
     deny "Destructive command denied: recursive force delete at root level"
   fi
 
-  # dd with device input
-  if echo "$cmd" | grep -qE '\bdd\b.*\bif=/dev/'; then
-    deny "Destructive command denied: dd with device input"
+  # dd with device input or output
+  if echo "$cmd" | grep -qE '\bdd\b.*\b(if|of)=/dev/'; then
+    deny "Destructive command denied: dd with device input/output"
   fi
 
   # chmod 777 on absolute paths
@@ -379,17 +386,17 @@ check_bash_network() {
 # Main dispatch — field-based extraction
 #
 # Spec:
-#   Instead of dispatching by tool name, extract paths and domains
-#   from known field names and check them uniformly.
+#   All fields are extracted in a single jq call at script start
+#   using eval + @sh for safe shell-variable assignment.
 #
-#   Path fields:   file_path, notebook_path, path
-#   URL fields:    url
-#   Command field: command (contains embedded paths and URLs)
+#   Pre-extracted variables:
+#     TOOL_NAME, CWD, FILE_PATH, NOTEBOOK_PATH, INPUT_PATH,
+#     URL_FIELD, COMMAND_STR
 #
 #   Flow:
 #     1. Self-protection: for write tools, check path fields
-#     2. Path check: extract from path fields → check allowed locations
-#     3. Domain check: extract from URL fields → check allowed domains
+#     2. Path check: check FILE_PATH, NOTEBOOK_PATH, INPUT_PATH
+#     3. Domain check: extract domain from URL_FIELD
 #        (WebSearch exempt — uses Anthropic infrastructure)
 #     4. Command handling: self-protection, destructive, network
 #     5. Allow
@@ -398,35 +405,30 @@ check_bash_network() {
 # --- 1. Self-protection for write tools ---
 case "$TOOL_NAME" in
   Write|Edit)
-#    check_self_protection "$(echo "$INPUT" | jq -r '.tool_input.file_path // empty')"
+#    check_self_protection "$FILE_PATH"
     ;;
   NotebookEdit)
-#    check_self_protection "$(echo "$INPUT" | jq -r '.tool_input.notebook_path // empty')"
+#    check_self_protection "$NOTEBOOK_PATH"
     ;;
 esac
 
 # --- 2. Path checks from known fields ---
-for field in file_path notebook_path path; do
-  value=$(echo "$INPUT" | jq -r ".tool_input.$field // empty")
-  [[ -n "$value" ]] && check_path "$value"
-done
+[[ -n "$FILE_PATH" ]] && check_path "$FILE_PATH"
+[[ -n "$NOTEBOOK_PATH" ]] && check_path "$NOTEBOOK_PATH"
+[[ -n "$INPUT_PATH" ]] && check_path "$INPUT_PATH"
 
 # --- 3. Domain checks from URL fields ---
-if [[ "$TOOL_NAME" != "WebSearch" ]]; then
-  url=$(echo "$INPUT" | jq -r '.tool_input.url // empty')
-  if [[ -n "$url" ]]; then
-    domain=$(extract_domain_from_url "$url")
-    check_domain "$domain"
-  fi
+if [[ "$TOOL_NAME" != "WebSearch" && -n "$URL_FIELD" ]]; then
+  domain=$(extract_domain_from_url "$URL_FIELD")
+  check_domain "$domain"
 fi
 
 # --- 4. Command field handling ---
-command_str=$(echo "$INPUT" | jq -r '.tool_input.command // empty')
-if [[ -n "$command_str" ]]; then
-#  check_bash_self_protection "$command_str"
-  check_destructive_commands "$command_str"
-  check_bash_paths "$command_str"
-  check_bash_network "$command_str"
+if [[ -n "$COMMAND_STR" ]]; then
+#  check_bash_self_protection "$COMMAND_STR"
+  check_destructive_commands "$COMMAND_STR"
+  check_bash_paths "$COMMAND_STR"
+  check_bash_network "$COMMAND_STR"
 fi
 
 allow
