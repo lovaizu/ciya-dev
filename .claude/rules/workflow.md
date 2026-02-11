@@ -30,6 +30,7 @@ Follow this workflow for every task:
 6. **Implementation**
    - Create an empty commit: `git commit --allow-empty`
    - Push the branch and create the PR: `gh pr create`
+   - Name the branch per the rules in `git-conventions.md`
    - Write code and make commits (split by purpose, one logical change per commit)
    - Push commits to the remote branch
 
@@ -52,7 +53,7 @@ Follow this workflow for every task:
    - Read the issue's Success Criteria
    - For each criterion: execute it as written (prefer execution over inspection)
    - If execution is truly not possible, explain why before falling back to inspection
-   - Update the issue's Success Criteria checkboxes on GitHub (`gh issue edit`)
+   - Update the issue body to check off completed Success Criteria checkboxes (fetch with `gh issue view`, modify, update with `gh issue edit --body`)
    - Append the Success Criteria Check table to the PR body (see `pr-format.md`)
    - If any criterion is NG, address it and re-check
 
