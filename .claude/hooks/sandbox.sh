@@ -256,6 +256,13 @@ check_bash_self_protection() {
   fi
 }
 
+is_content_command() {
+  local cmd="$1"
+  echo "$cmd" | grep -qE '\bgit\s+commit\b' && return 0
+  echo "$cmd" | grep -qE '\bgh\s+(pr|issue)\s+(create|edit)\b' && return 0
+  return 1
+}
+
 check_destructive_commands() {
   local cmd="$1"
 
@@ -435,10 +442,14 @@ fi
 
 # --- 4. Command field handling ---
 if [[ -n "$COMMAND_STR" ]]; then
-#  check_bash_self_protection "$COMMAND_STR"
-  check_destructive_commands "$COMMAND_STR"
-  check_bash_paths "$COMMAND_STR"
-  check_bash_network "$COMMAND_STR"
+  if is_content_command "$COMMAND_STR"; then
+    check_bash_network "$COMMAND_STR"
+  else
+#    check_bash_self_protection "$COMMAND_STR"
+    check_destructive_commands "$COMMAND_STR"
+    check_bash_paths "$COMMAND_STR"
+    check_bash_network "$COMMAND_STR"
+  fi
 fi
 
 allow

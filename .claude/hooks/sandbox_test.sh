@@ -577,6 +577,25 @@ assert_decision "Unknown tool" "allow" \
   "$(mk_json SomeNewTool '{"arg": "value"}')"
 
 # ============================================================
+echo "=== Content commands: skip destructive check ==="
+# ============================================================
+
+assert_decision "git commit with dd in message" "allow" \
+  "$(mk_json Bash '{"command": "git commit -m \"dd if=/dev/zero of=/dev/sda\"", "description": "test"}')"
+
+assert_decision "gh pr edit with destructive text in body" "allow" \
+  "$(mk_json Bash '{"command": "gh pr edit 25 --body \"rm -rf / and dd of=/dev/sda\"", "description": "test"}')"
+
+assert_decision "gh pr create with destructive text in body" "allow" \
+  "$(mk_json Bash '{"command": "gh pr create --title \"test\" --body \"shutdown -h now\"", "description": "test"}')"
+
+assert_decision "gh issue create with destructive text in body" "allow" \
+  "$(mk_json Bash '{"command": "gh issue create --body \"mkfs /dev/sda\"", "description": "test"}')"
+
+assert_decision "gh issue edit with destructive text in body" "allow" \
+  "$(mk_json Bash '{"command": "gh issue edit 1 --body \"reboot the server\"", "description": "test"}')"
+
+# ============================================================
 echo ""
 echo "=== Results: $pass passed, $fail failed ==="
 [[ $fail -eq 0 ]] && echo "All tests passed!" || exit 1
