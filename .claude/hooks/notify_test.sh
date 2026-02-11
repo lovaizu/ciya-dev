@@ -69,7 +69,8 @@ echo "get_repo_info:"
 
 repo_info=$(get_repo_info ".")
 assert_contains "contains colon separator" ":" "$repo_info"
-assert_contains "contains repo name" "ciya-dev" "$repo_info"
+expected_repo=$(basename -s .git "$(git remote get-url origin 2>/dev/null)" 2>/dev/null || basename "$(pwd)")
+assert_contains "contains repo name" "$expected_repo" "$repo_info"
 
 # ── send_notification (non-WSL) ──────────────────────────────────
 echo "send_notification:"
@@ -95,7 +96,7 @@ notification_title=""
 notification_message=""
 notify_main <<< '{"hook_event_name": "Stop", "cwd": "."}'
 assert_eq "title" "Claude Code - Complete" "$notification_title"
-assert_contains "message contains repo info" "ciya-dev:" "$notification_message"
+assert_contains "message contains repo info" "$expected_repo:" "$notification_message"
 assert_contains "message contains Agent finished" "Agent finished" "$notification_message"
 
 # ── Integration: Notification (permission_prompt) ────────────────
@@ -105,7 +106,7 @@ notification_title=""
 notification_message=""
 notify_main <<< '{"hook_event_name": "Notification", "notification_type": "permission_prompt", "message": "Claude needs your permission to use Bash", "cwd": "."}'
 assert_eq "title" "Claude Code - Action Required" "$notification_title"
-assert_contains "message contains repo info" "ciya-dev:" "$notification_message"
+assert_contains "message contains repo info" "$expected_repo:" "$notification_message"
 assert_contains "message contains detail" "Claude needs your permission to use Bash" "$notification_message"
 
 # ── Integration: Notification (empty message fallback) ───────────
