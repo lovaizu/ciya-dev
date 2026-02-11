@@ -11,10 +11,15 @@ eval "$(echo "$input" | jq -r '
   @sh "ctx=\(.context_window.used_percentage // 0)"
 ')"
 
+full_dir="$dir"
 dir=$(basename "$dir")
 ctx=${ctx%%.*}
 
-branch=$(git branch --show-current 2>/dev/null || echo "")
+if [[ -n "$full_dir" ]]; then
+  branch=$(git -C "$full_dir" branch --show-current 2>/dev/null || echo "")
+else
+  branch=""
+fi
 
 in_k=$(( (token_in + 500) / 1000 ))
 out_k=$(( (token_out + 500) / 1000 ))
