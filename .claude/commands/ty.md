@@ -4,6 +4,16 @@ disable-model-invocation: true
 
 The developer has approved. Detect which approval gate this is and proceed.
 
+## Usage
+
+Show this to the developer:
+
+```
+/ty              Approve the current workflow gate (issue, PR description, or PR)
+```
+
+## Detect the gate
+
 1. Find the PR for the current branch: `gh pr list --head <branch-name> --json number,title,body,url`
 2. Determine the current approval gate:
 

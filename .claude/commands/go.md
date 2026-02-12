@@ -1,5 +1,14 @@
 Detect the current branch and resume or start the workflow.
 
+## Usage
+
+Show this to the developer:
+
+```
+/go              Resume the workflow on the current branch (or start hearing if on main)
+/go <number>     Open a specific issue or PR by number and resume its workflow
+```
+
 ## If `$ARGUMENTS` is provided (a number)
 
 The argument is an issue or PR number. Determine what it refers to:
