@@ -2,7 +2,7 @@
 
 ## Branch Strategy
 
-- Create a worktree from the latest `main`: `git fetch origin && git worktree add <branch-name> -b <branch-name> origin/main`
+- Create a branch from the latest `main`: `git fetch origin && git switch -c <branch-name> origin/main`
 - Branch name must describe the user's goal, not the implementation approach, using only hyphen-separated words
 - Good: `parallel-claude-code-tasks`, `faster-test-feedback`
 - Bad: `setup-bare-repo-worktree`, `refactor-module-to-class`
