@@ -1,4 +1,4 @@
-Address review feedback on the current branch (PR or Issue).
+Address feedback comments on the current branch's Issue or PR.
 
 ## Usage
 
@@ -28,7 +28,7 @@ Show this to the developer:
 
 1. Fetch all review comments: `gh api repos/{owner}/{repo}/pulls/{number}/comments`
 2. Also check PR review threads for unresolved conversations: `gh api repos/{owner}/{repo}/pulls/{number}/reviews`
-3. Work through unresolved comments one by one, following the PR Review Process in CLAUDE.md:
+3. Work through unresolved comments one by one, following the PR Review Process in `pr-format.md`:
    - If something is unclear, reply asking for clarification
    - When making a fix: commit, push, then reply to the review comment with a link to the commit
    - Include `Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>` in replies
