@@ -163,15 +163,17 @@ launch_tmux() {
 
   echo "Starting tmux session: $SESSION_NAME"
 
+  local env_cmd="set -a && source '$REPO_ROOT/.env' && set +a"
+
   # Create session with main window
   tmux new-session -d -s "$SESSION_NAME" -n "main" -c "$REPO_ROOT/main"
-  tmux send-keys -t "$SESSION_NAME:main" "claude --dangerously-skip-permissions" Enter
+  tmux send-keys -t "$SESSION_NAME:main" "$env_cmd && claude --dangerously-skip-permissions" Enter
 
   # Create work windows
   for i in $(seq 1 "$count"); do
     local name="work-$i"
     tmux new-window -t "$SESSION_NAME" -n "$name" -c "$REPO_ROOT/$name"
-    tmux send-keys -t "$SESSION_NAME:$name" "claude --dangerously-skip-permissions" Enter
+    tmux send-keys -t "$SESSION_NAME:$name" "$env_cmd && claude --dangerously-skip-permissions" Enter
   done
 
   # Select the main window
