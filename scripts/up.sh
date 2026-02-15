@@ -13,7 +13,7 @@ set -euo pipefail
 # Allow tests to override these variables before sourcing
 if [ -z "${REPO_ROOT:-}" ]; then
   SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-  REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+  REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 
   # Sanity check: verify we're in a bare repo structure
   if [ ! -d "$REPO_ROOT/.bare" ] && [ ! -f "$REPO_ROOT/.git" ]; then

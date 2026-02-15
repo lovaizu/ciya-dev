@@ -7,13 +7,13 @@ Claude Code in your area
 ### First-time setup
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/lovaizu/ciya-dev/main/wc.sh | bash
+curl -fsSL https://raw.githubusercontent.com/lovaizu/ciya-dev/main/scripts/wc.sh | bash
 
 # You now have:
 #   ciya-dev/.bare/    ← bare clone
 #   ciya-dev/.env      ← from .env.example (edit this)
 #   ciya-dev/main/     ← main branch worktree
-#   ciya-dev/up.sh     ← symlink → main/.ciya/scripts/up.sh
+#   ciya-dev/up.sh     ← symlink → main/scripts/up.sh
 
 cd ciya-dev
 vi .env    # Set GH_TOKEN and other tokens
@@ -55,7 +55,7 @@ vi .env    # Set GH_TOKEN and other tokens
 # In the main/ worktree:
 cd main && git pull && cd ..
 
-# up.sh at repo root is a symlink to main/.ciya/scripts/up.sh
+# up.sh at repo root is a symlink to main/scripts/up.sh
 # After git pull, ./up.sh automatically runs the latest version
 ```
 
@@ -166,10 +166,10 @@ At each gate: review on GitHub, leave comments if needed (`/fb` to address them)
 ciya-dev/
 ├── .bare/              Bare clone
 ├── .env                Environment variables
-├── up.sh               Symlink → main/.ciya/scripts/up.sh
+├── up.sh               Symlink → main/scripts/up.sh
 ├── main/               Issue management worktree
+│   ├── scripts/        wc.sh, up.sh
 │   ├── .ciya/
-│   │   ├── scripts/    up.sh
 │   │   └── issues/     Work records per issue
 │   ├── .claude/        Commands, rules, hooks
 │   └── ...

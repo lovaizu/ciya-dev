@@ -35,12 +35,12 @@ setup_repo() {
     git init -q
     git checkout -q -b main
 
-    mkdir -p .ciya/scripts
-    cat > .ciya/scripts/up.sh <<'EOF'
+    mkdir -p scripts
+    cat > scripts/up.sh <<'EOF'
 #!/usr/bin/env bash
 echo "placeholder"
 EOF
-    chmod +x .ciya/scripts/up.sh
+    chmod +x scripts/up.sh
 
     cat > .env.example <<'EOF'
 GH_TOKEN=github_pat_real_token

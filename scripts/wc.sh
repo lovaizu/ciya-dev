@@ -31,7 +31,7 @@ git show origin/main:.env.example > .env
 # Symlink up.sh (will work once main/ worktree is created by up.sh)
 # Create main worktree first so the symlink target exists
 git worktree add main main
-ln -s main/.ciya/scripts/up.sh up.sh
+ln -s main/scripts/up.sh up.sh
 
 trap - EXIT
 

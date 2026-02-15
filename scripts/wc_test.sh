@@ -5,7 +5,7 @@ set -euo pipefail
 # Tests run the actual wc.sh with repo_url overridden via sed.
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-WC_SH="$SCRIPT_DIR/../../wc.sh"
+WC_SH="$SCRIPT_DIR/wc.sh"
 
 pass=0
 fail=0
@@ -39,12 +39,12 @@ mkdir "$staging"
 GH_TOKEN=github_pat_xxxxx
 EOF
 
-  mkdir -p .ciya/scripts
-  cat > .ciya/scripts/up.sh <<'UPEOF'
+  mkdir -p scripts
+  cat > scripts/up.sh <<'UPEOF'
 #!/usr/bin/env bash
 echo "up.sh placeholder"
 UPEOF
-  chmod +x .ciya/scripts/up.sh
+  chmod +x scripts/up.sh
 
   git add -A
   git commit -q -m "initial"
@@ -92,12 +92,12 @@ test_env_extracted() {
 }
 run_test ".env is extracted from .env.example" test_env_extracted
 
-# --- Test 5: up.sh is a symlink to main/.ciya/scripts/up.sh ---
+# --- Test 5: up.sh is a symlink to main/scripts/up.sh ---
 test_upsh_symlink() {
   [ -L "$tmpdir/test1/ciya-dev/up.sh" ] &&
-  [ "$(readlink "$tmpdir/test1/ciya-dev/up.sh")" = "main/.ciya/scripts/up.sh" ]
+  [ "$(readlink "$tmpdir/test1/ciya-dev/up.sh")" = "main/scripts/up.sh" ]
 }
-run_test "up.sh is symlink to main/.ciya/scripts/up.sh" test_upsh_symlink
+run_test "up.sh is symlink to main/scripts/up.sh" test_upsh_symlink
 
 # --- Test 6: Errors if ciya-dev/ already exists ---
 test_error_if_exists() {
