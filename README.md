@@ -116,13 +116,71 @@ In a **work-N/** pane:
 | `/fb` | any | Address feedback comments on Issues or PRs |
 | `/ty` | any | Approve the current gate |
 
-## Three Gates
+## Traceability Chain
 
-| Gate | Question | Where |
-|------|----------|-------|
-| Goal | Is the issue capturing the right problem and goal? | GitHub Issue page |
-| Approach | Can the PR's approach achieve the goal? | GitHub PR page |
-| Goal Verification | Has the goal been achieved? | GitHub PR page |
+Every element in the workflow traces back to user value. If a link is missing, the process breaks.
+
+```mermaid
+flowchart LR
+    S[Situation] --> P[Pain]
+    P --> B[Benefit]
+    B --> SC[Success Criteria]
+    P -.->|addresses| A[Approach]
+    A --> T[Tasks]
+    T -.->|achieves| SC
+```
+
+- **Situation** — Observable facts and circumstances
+- **Pain** — Who suffers and how (the problem to solve)
+- **Benefit** — Who gains what, once resolved (the value to deliver)
+- **Success Criteria** — Verifiable conditions that prove Benefit is achieved
+- **Approach** — Strategy that addresses each Pain
+- **Tasks** — Steps that achieve each SC through the Approach
+
+Rules:
+- Every Task must connect to at least one SC. A Task with no SC link is unnecessary.
+- Every SC must connect to a Benefit. An SC with no Benefit link is measuring the wrong thing.
+- The Approach must address every Pain. An unaddressed Pain is an unresolved problem.
+
+## Phases and Gates
+
+The workflow has three phases. Each phase has a clear purpose, and a gate where the developer reviews whether that purpose is met.
+
+| Phase | Purpose | Gate | The developer asks |
+|-------|---------|------|--------------------|
+| **Goal** | Define user value | Gate 1: Goal | Do Benefit and SC capture the right user value? |
+| **Approach** | Design optimal means | Gate 2: Approach | Can Approach and Tasks achieve Benefit through SC? |
+| **Delivery** | Verify achievement | Gate 3: Verification | Are SC met and Benefits realized? |
+
+### Goal Phase (main/ worktree)
+
+**Purpose:** Define what user value we want to deliver.
+
+The developer and agent identify Pain, articulate the desired Benefit, and define Success Criteria that verify the Benefit is achieved.
+
+**Gate 1 — Goal:**
+- **Relevant:** Pain, Benefit, SC — is this the right problem and the right measure of success?
+- **Irrelevant:** Implementation details, current architecture, technical feasibility
+
+### Approach Phase (work-N/ worktree)
+
+**Purpose:** Design the optimal means to achieve the goal.
+
+The agent drafts an Approach that addresses each Pain and breaks it into Tasks that achieve each SC.
+
+**Gate 2 — Approach:**
+- **Relevant:** Does Approach address each Pain? Do Tasks trace to SC? Is this the optimal strategy?
+- **Irrelevant:** Whether the goal itself is right (already approved at Gate 1)
+
+### Delivery Phase (work-N/ worktree)
+
+**Purpose:** Implement and verify that the goal is achieved.
+
+The agent implements Tasks, verifies SC are met, and confirms Benefits are realized.
+
+**Gate 3 — Verification:**
+- **Relevant:** Are SC met? Are Benefits realized? Does the implementation match the approved Approach?
+- **Irrelevant:** Whether the approach was optimal (already approved at Gate 2)
 
 At each gate: review on GitHub, leave comments if needed (`/fb` to address them), then `/ty` to approve.
 
