@@ -44,3 +44,9 @@ After merging, remove the worktree:
 cd ciya-dev
 ./main/scripts/bb.sh <branch-name-or-path>
 ```
+
+## Skills
+
+| Skill | Description |
+|-------|-------------|
+| skill-smith | Create, improve, and evaluate Claude skills following Anthropic's Guide. Includes structural validation with PASS/FAIL/WARN grading. |
