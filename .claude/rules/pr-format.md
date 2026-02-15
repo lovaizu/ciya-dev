@@ -1,5 +1,7 @@
 # PR Format
 
+The PR defines the means to achieve the Success Criteria. It is reviewed at Gate 2 (Approach): can Approach and Tasks achieve all SC?
+
 **Title:** A concise title describing the purpose of the work
 
 **Body:**
@@ -8,12 +10,18 @@
 Closes #{issue number}
 
 ## Approach
-{Solution strategy and design decisions}
+{Means to achieve the Success Criteria}
+
+- Each Task must be derivable from the Approach — a Task unrelated to the Approach indicates a misalignment
 
 ## Tasks
-- [ ] {Task}
-- [ ] {Task}
-- [ ] {Task}
+- [ ] {Task} → SC: {which Success Criteria this achieves}
+- [ ] {Task} → SC: {which Success Criteria this achieves}
+- [ ] {Task} → SC: {which Success Criteria this achieves}
+
+- Each Task must trace to one or more SC — a Task with no SC link is unnecessary
+- Each SC must be covered by at least one Task — an uncovered SC will not be achieved
+- Reference SC by quoting its key phrase (e.g., → SC: "README exists with diagram")
 
 ## Expert Review
 
