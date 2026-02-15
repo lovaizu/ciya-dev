@@ -335,7 +335,7 @@ if [[ -d "$SCRIPTS_DIR" ]]; then
       *.py|*.sh|*.js|*.ts|*.rb|*.pl) ;;
       *) continue ;;
     esac
-    for pattern in 'rm[[:space:]]\+-rf[[:space:]]\+/' '\bsudo\b' 'curl.*-d[[:space:]]*@' 'wget.*|.*sh'; do
+    for pattern in 'rm[[:space:]]+\-rf[[:space:]]+/' '\bsudo\b' 'curl.*-d[[:space:]]*@' 'wget.*[|].*sh'; do
       if grep -qlE "$pattern" "$sf" 2>/dev/null; then
         REL="$(realpath --relative-to="$SKILL_DIR" "$sf")"
         warn "SEC-02" "security" "No dangerous ops" "Pattern in $REL" "Review"
