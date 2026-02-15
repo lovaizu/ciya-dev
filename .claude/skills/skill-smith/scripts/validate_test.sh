@@ -58,17 +58,22 @@ assert_verdict_count() {
 }
 
 # --- Test: missing SKILL.md ---
+# Given: an empty directory with no SKILL.md
 t1="$TMPDIR_ROOT/t1"
 mkdir -p "$t1"
+# When + Then: validation exits non-zero
 assert_exit_fail "missing SKILL.md exits non-zero" "$t1"
 
 # --- Test: no frontmatter ---
+# Given: a SKILL.md without YAML frontmatter
 t2="$TMPDIR_ROOT/t2"
 mkdir -p "$t2"
 echo "# No frontmatter" > "$t2/SKILL.md"
+# When + Then: validation exits non-zero
 assert_exit_fail "no frontmatter exits non-zero" "$t2"
 
 # --- Test: valid minimal skill ---
+# Given: a well-formed SKILL.md with all required fields
 t3="$TMPDIR_ROOT/t3"
 mkdir -p "$t3"
 cat > "$t3/SKILL.md" <<'EOF'
@@ -93,9 +98,11 @@ Run the analysis script.
 
 Present results to the user.
 EOF
+# When + Then: grades A
 assert_grade "valid minimal skill" "A" "$t3"
 
 # --- Test: uppercase folder name ---
+# Given: a skill directory with uppercase letters in folder name
 t4="$TMPDIR_ROOT/BadName"
 mkdir -p "$t4"
 cat > "$t4/SKILL.md" <<'EOF'
@@ -116,9 +123,11 @@ Concrete step.
 
 More steps.
 EOF
+# When + Then: grades C due to naming violation
 assert_grade "uppercase folder name" "C" "$t4"
 
 # --- Test: folder != name ---
+# Given: folder name does not match the name field in SKILL.md
 t5="$TMPDIR_ROOT/wrong-folder"
 mkdir -p "$t5"
 cat > "$t5/SKILL.md" <<'EOF'
@@ -139,9 +148,11 @@ Concrete.
 
 Details.
 EOF
+# When + Then: grades C due to name mismatch
 assert_grade "folder != name" "C" "$t5"
 
 # --- Test: description with angle brackets ---
+# Given: a SKILL.md with angle brackets in the description
 t6="$TMPDIR_ROOT/t6"
 mkdir -p "$t6"
 cat > "$t6/SKILL.md" <<'EOF'
@@ -162,9 +173,11 @@ Concrete.
 
 Details.
 EOF
+# When + Then: grades C due to angle brackets
 assert_grade "description with angle brackets" "C" "$t6"
 
 # --- Test: disallowed frontmatter field ---
+# Given: a SKILL.md with an unsupported frontmatter field
 t7="$TMPDIR_ROOT/t7"
 mkdir -p "$t7"
 cat > "$t7/SKILL.md" <<'EOF'
@@ -186,9 +199,11 @@ Concrete.
 
 Details.
 EOF
+# When + Then: grades C due to disallowed field
 assert_grade "disallowed frontmatter field" "C" "$t7"
 
 # --- Test: no trigger phrases (D-03 warn) ---
+# Given: a SKILL.md with no trigger phrases in the description
 t8="$TMPDIR_ROOT/t8"
 mkdir -p "$t8"
 cat > "$t8/SKILL.md" <<'EOF'
@@ -209,9 +224,11 @@ Concrete.
 
 Details.
 EOF
+# When + Then: produces 1 warning
 assert_verdict_count "no trigger phrases warns" "WARN" "1" "$t8"
 
 # --- Test: skill-smith validates itself ---
+# Given: the skill-smith skill directory itself
 assert_grade "skill-smith self-validation" "A" "$SCRIPT_DIR/.."
 assert_verdict_count "skill-smith 0 FAIL" "FAIL" "0" "$SCRIPT_DIR/.."
 assert_verdict_count "skill-smith 0 WARN" "WARN" "0" "$SCRIPT_DIR/.."

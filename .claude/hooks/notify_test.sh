@@ -92,9 +92,12 @@ send_notification() {
 # ── Integration: Stop event ──────────────────────────────────────
 echo "integration (Stop):"
 
+# Given: clean notification state
 notification_title=""
 notification_message=""
+# When: Stop event is received
 notify_main <<< '{"hook_event_name": "Stop", "cwd": "."}'
+# Then: title and message reflect completion
 assert_eq "title" "Claude Code - Complete" "$notification_title"
 assert_contains "message contains repo info" "$expected_repo:" "$notification_message"
 assert_contains "message contains Agent finished" "Agent finished" "$notification_message"
@@ -102,9 +105,12 @@ assert_contains "message contains Agent finished" "Agent finished" "$notificatio
 # ── Integration: Notification (permission_prompt) ────────────────
 echo "integration (Notification - permission_prompt):"
 
+# Given: clean notification state
 notification_title=""
 notification_message=""
+# When: permission_prompt notification is received
 notify_main <<< '{"hook_event_name": "Notification", "notification_type": "permission_prompt", "message": "Claude needs your permission to use Bash", "cwd": "."}'
+# Then: title shows action required, message contains the detail
 assert_eq "title" "Claude Code - Action Required" "$notification_title"
 assert_contains "message contains repo info" "$expected_repo:" "$notification_message"
 assert_contains "message contains detail" "Claude needs your permission to use Bash" "$notification_message"
@@ -112,29 +118,37 @@ assert_contains "message contains detail" "Claude needs your permission to use B
 # ── Integration: Notification (empty message fallback) ───────────
 echo "integration (Notification - empty message):"
 
+# Given: clean notification state
 notification_title=""
 notification_message=""
+# When: notification with empty message is received
 notify_main <<< '{"hook_event_name": "Notification", "notification_type": "permission_prompt", "message": "", "cwd": "."}'
+# Then: message falls back to default text
 assert_eq "title" "Claude Code - Action Required" "$notification_title"
 assert_contains "message fallback" "Waiting for your input" "$notification_message"
 
 # ── Integration: Unknown event ───────────────────────────────────
 echo "integration (unknown event):"
 
+# Given: clean notification state
 notification_title=""
 notification_message=""
+# When: unknown event type is received
 notify_main <<< '{"hook_event_name": "CustomEvent", "cwd": "."}'
+# Then: generic title with event name in message
 assert_eq "title" "Claude Code" "$notification_title"
 assert_contains "message contains event name" "CustomEvent" "$notification_message"
 
 # ── Message truncation ───────────────────────────────────────────
 echo "message truncation:"
 
+# Given: a message exceeding 200 characters
 long_message=$(printf 'x%.0s' $(seq 1 250))
 notification_title=""
 notification_message=""
+# When: notification with long message is received
 notify_main <<< "{\"hook_event_name\": \"Notification\", \"message\": \"$long_message\", \"cwd\": \".\"}"
-
+# Then: message is truncated to 220 characters or less
 if [[ ${#notification_message} -le 220 ]]; then
   echo "  PASS: message truncated (length=${#notification_message})"
   ((++passed))

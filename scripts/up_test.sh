@@ -100,9 +100,12 @@ run_up() {
 
 # --- Test 1: up.sh 4 creates work-1 through work-4 ---
 test_creates_4_worktrees() {
+  # Given: a fresh bare repo
   local testdir="$tmpdir/test1"
   setup_repo "$testdir"
+  # When: running up.sh with count 4
   run_up "$testdir" 4
+  # Then: work-1 through work-4 exist, work-5 does not
   [ -d "$testdir/work-1" ] &&
   [ -d "$testdir/work-2" ] &&
   [ -d "$testdir/work-3" ] &&
@@ -113,6 +116,8 @@ run_test "up.sh 4 creates work-1 through work-4" test_creates_4_worktrees
 
 # --- Test 2: Config file stores worker count ---
 test_stores_config() {
+  # Given: test1 repo after running up.sh 4 (from test 1)
+  # When + Then: config file contains 4
   [ -f "$tmpdir/test1/.up_config" ] &&
   [ "$(cat "$tmpdir/test1/.up_config")" = "4" ]
 }
@@ -120,7 +125,10 @@ run_test "Config file stores worker count" test_stores_config
 
 # --- Test 3: up.sh 6 adds work-5 and work-6 ---
 test_adds_worktrees() {
+  # Given: test1 repo already has work-1 through work-4
+  # When: running up.sh with count 6
   run_up "$tmpdir/test1" 6
+  # Then: work-5 and work-6 are added
   [ -d "$tmpdir/test1/work-5" ] &&
   [ -d "$tmpdir/test1/work-6" ] &&
   [ ! -d "$tmpdir/test1/work-7" ]
@@ -129,7 +137,10 @@ run_test "up.sh 6 adds work-5 and work-6" test_adds_worktrees
 
 # --- Test 4: up.sh 2 removes work-3 through work-6 ---
 test_removes_worktrees() {
+  # Given: test1 repo has work-1 through work-6
+  # When: running up.sh with count 2
   run_up "$tmpdir/test1" 2
+  # Then: work-3 through work-6 are removed, work-1 and work-2 remain
   [ -d "$tmpdir/test1/work-1" ] &&
   [ -d "$tmpdir/test1/work-2" ] &&
   [ ! -d "$tmpdir/test1/work-3" ] &&
@@ -141,12 +152,13 @@ run_test "up.sh 2 removes work-3 through work-6" test_removes_worktrees
 
 # --- Test 5: Dirty worktree prevents removal ---
 test_dirty_prevents_removal() {
+  # Given: a repo with 3 worktrees and an uncommitted file in work-2
   local testdir="$tmpdir/test5"
   setup_repo "$testdir"
   run_up "$testdir" 3
-
   echo "uncommitted" > "$testdir/work-2/dirty.txt"
-
+  # When: trying to reduce to 1 worktree
+  # Then: fails because work-2 is dirty
   ! run_up "$testdir" 1 2>/dev/null
 }
 run_test "Dirty worktree prevents removal" test_dirty_prevents_removal
