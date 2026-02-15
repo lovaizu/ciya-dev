@@ -20,7 +20,7 @@ Follow this workflow for every task. Three phases, each with a purpose and a gat
    - `/fb` to address feedback comments on the issue
    - `/ty` to approve
    - **The developer asks:** Do Benefit and SC capture the right user value?
-   - **Relevant:** Pain, Benefit, SC
+   - **Relevant:** Situation, Pain, Benefit, SC — are the facts accurate, the problem real, and the measure of success right?
    - **Irrelevant:** Implementation details, current architecture, technical feasibility
 
 ## Phase 2: Approach (work-N/ worktree)
@@ -32,6 +32,7 @@ Follow this workflow for every task. Three phases, each with a purpose and a gat
    - Draft the PR body with Approach and Tasks (see `pr-format.md`)
    - Ensure Approach addresses each Pain from the issue
    - Ensure each Task traces to one or more Success Criteria
+   - Ensure each Success Criteria is covered by at least one Task
    - Create the PR on GitHub with `gh pr create`
 
 5. **Gate 2 — Approach**
@@ -51,10 +52,13 @@ Follow this workflow for every task. Three phases, each with a purpose and a gat
    - Push commits to the remote branch
 
 7. **Consistency check**
-   - Verify issue title [goal] matches one of the Benefits
+   - Verify the issue title's [benefit] summarizes the primary Benefit from the body
+   - Verify each Pain arises from the Situation
+   - Verify each Benefit traces from a Pain
    - Verify each Success Criteria maps to a Benefit
    - Verify PR Approach addresses each Pain
    - Verify each PR Task traces to one or more Success Criteria
+   - Verify each Success Criteria is covered by at least one Task
    - If any section was updated during earlier steps, re-check all sections
    - Fix any inconsistencies found
 

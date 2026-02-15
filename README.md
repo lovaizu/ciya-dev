@@ -138,9 +138,11 @@ flowchart LR
 - **Tasks** — Steps that achieve each SC through the Approach
 
 Rules:
-- Every Task must connect to at least one SC. A Task with no SC link is unnecessary.
+- Every Pain must arise from the Situation. A Pain with no Situation basis is an ungrounded assumption.
+- Every Benefit must trace from a Pain. A Benefit with no Pain link is solving a problem that doesn't exist.
 - Every SC must connect to a Benefit. An SC with no Benefit link is measuring the wrong thing.
 - The Approach must address every Pain. An unaddressed Pain is an unresolved problem.
+- Every Task must connect to at least one SC. A Task with no SC link is unnecessary.
 
 ## Phases and Gates
 
@@ -159,7 +161,7 @@ The workflow has three phases. Each phase has a clear purpose, and a gate where 
 The developer and agent identify Pain, articulate the desired Benefit, and define Success Criteria that verify the Benefit is achieved.
 
 **Gate 1 — Goal:**
-- **Relevant:** Pain, Benefit, SC — is this the right problem and the right measure of success?
+- **Relevant:** Situation, Pain, Benefit, SC — are the facts accurate, the problem real, and the measure of success right?
 - **Irrelevant:** Implementation details, current architecture, technical feasibility
 
 ### Approach Phase (work-N/ worktree)

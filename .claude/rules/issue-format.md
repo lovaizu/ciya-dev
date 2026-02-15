@@ -5,6 +5,7 @@ The issue defines user value. It is reviewed at Gate 1 (Goal): do Benefit and SC
 **Title:** Use user story format: "As a [role], I want [goal] so that [benefit]"
 
 - [goal] must be the user's desired outcome, not a technical means or implementation detail
+- [benefit] in the title must summarize the primary Benefit from the body's Benefit section
 - Good: "I want to run multiple tasks in parallel"
 - Bad: "I want a bare repo + worktree structure"
 

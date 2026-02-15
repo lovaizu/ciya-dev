@@ -21,6 +21,7 @@ Closes #{issue number}
 
 - Each Task must trace to one or more SC — a Task with no SC link is unnecessary
 - Each SC must be covered by at least one Task — an uncovered SC will not be achieved
+- Reference SC by quoting its key phrase (e.g., → SC: "README exists with diagram")
 
 ## Expert Review
 
