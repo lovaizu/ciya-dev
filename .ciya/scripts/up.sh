@@ -165,21 +165,15 @@ launch_tmux() {
 
   local env_cmd="set -a && source '$REPO_ROOT/.env' && set +a"
 
-  # Build command that sources .env, sets ALLOWED_DOMAINS_FILE default, then launches CC
-  launch_cmd() {
-    local worktree_dir="$1"
-    echo "$env_cmd && export ALLOWED_DOMAINS_FILE=\"\${ALLOWED_DOMAINS_FILE:-$worktree_dir/.claude/hooks/allowed-domains.txt}\" && claude --dangerously-skip-permissions"
-  }
-
   # Create session with main window
   tmux new-session -d -s "$SESSION_NAME" -n "main" -c "$REPO_ROOT/main"
-  tmux send-keys -t "$SESSION_NAME:main" "$(launch_cmd "$REPO_ROOT/main")" Enter
+  tmux send-keys -t "$SESSION_NAME:main" "$env_cmd && claude --dangerously-skip-permissions" Enter
 
   # Create work windows
   for i in $(seq 1 "$count"); do
     local name="work-$i"
     tmux new-window -t "$SESSION_NAME" -n "$name" -c "$REPO_ROOT/$name"
-    tmux send-keys -t "$SESSION_NAME:$name" "$(launch_cmd "$REPO_ROOT/$name")" Enter
+    tmux send-keys -t "$SESSION_NAME:$name" "$env_cmd && claude --dangerously-skip-permissions" Enter
   done
 
   # Select the main window
