@@ -152,6 +152,7 @@ remove_excess_worktrees() {
 
 launch_tmux() {
   local count="$1"
+  local total=$((count + 1))
 
   # If session already exists, kill it to apply new configuration
   if tmux has-session -t "$SESSION_NAME" 2>/dev/null; then
@@ -165,19 +166,42 @@ launch_tmux() {
 
   local env_cmd="set -a && source '$REPO_ROOT/.env' && set +a"
 
-  # Create session with main window
-  tmux new-session -d -s "$SESSION_NAME" -n "main" -c "$REPO_ROOT/main"
-  tmux send-keys -t "$SESSION_NAME:main" "$env_cmd && claude --dangerously-skip-permissions" Enter
-
-  # Create work windows
+  # Build directory list: main first, then work-1..N
+  local -a dirs=("$REPO_ROOT/main")
+  local -a names=("main")
   for i in $(seq 1 "$count"); do
-    local name="work-$i"
-    tmux new-window -t "$SESSION_NAME" -n "$name" -c "$REPO_ROOT/$name"
-    tmux send-keys -t "$SESSION_NAME:$name" "$env_cmd && claude --dangerously-skip-permissions" Enter
+    dirs+=("$REPO_ROOT/work-$i")
+    names+=("work-$i")
   done
 
-  # Select the main window
-  tmux select-window -t "$SESSION_NAME:main"
+  # Create session with first pane (main)
+  tmux new-session -d -s "$SESSION_NAME" -c "${dirs[0]}"
+
+  # Create remaining panes
+  for i in $(seq 1 $((total - 1))); do
+    tmux split-window -t "$SESSION_NAME:0" -c "${dirs[$i]}"
+    tmux select-layout -t "$SESSION_NAME:0" tiled
+  done
+
+  # Final layout: single row for ≤4 panes, tiled grid for >4
+  if [ "$total" -le 4 ]; then
+    tmux select-layout -t "$SESSION_NAME:0" even-horizontal
+  else
+    tmux select-layout -t "$SESSION_NAME:0" tiled
+  fi
+
+  # Show pane titles in borders
+  tmux set-option -t "$SESSION_NAME" pane-border-status top
+  tmux set-option -t "$SESSION_NAME" pane-border-format " #{pane_title} "
+
+  # Name each pane and launch CC
+  for i in $(seq 0 $((total - 1))); do
+    tmux select-pane -t "$SESSION_NAME:0.$i" -T "${names[$i]}"
+    tmux send-keys -t "$SESSION_NAME:0.$i" "$env_cmd && claude --dangerously-skip-permissions" Enter
+  done
+
+  # Select first pane (main)
+  tmux select-pane -t "$SESSION_NAME:0.0"
 
   exec tmux attach -t "$SESSION_NAME"
 }
