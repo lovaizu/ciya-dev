@@ -1,5 +1,7 @@
 # Shell Script Testing
 
+Shell-specific test conventions. See `testing.md` for common rules (Given-When-Then, coverage, meta-rules).
+
 ## Test File Convention
 
 - Every shell script `<name>.sh` must have a corresponding `<name>_test.sh` in the same directory
@@ -62,41 +64,3 @@ echo "Results: $passed passed, $failed failed"
 
 - Tests that create files or directories must use `mktemp -d` and clean up with `trap 'rm -rf "$tmp"' EXIT`
 - Tests that only exercise pure functions (no filesystem side effects) may skip the temp directory
-
-## Given-When-Then Pattern
-
-Each test follows the Given-When-Then structure:
-
-- **Given**: Set up preconditions (create files, set variables, configure state)
-- **When**: Execute the action being tested (call function, run script)
-- **Then**: Assert the expected outcome (check return value, output, side effects)
-
-For simple one-line assertions, the three phases are implicit:
-
-```bash
-assert_eq "ampersand" '&amp;' "$(escape_for_xml '&')"
-```
-
-For multi-step tests, use comments to mark phases:
-
-```bash
-# Given: a git repo with a known branch
-git init "$tmp/repo" >/dev/null 2>&1
-
-# When: running the script
-actual=$(echo "$input" | bash "$SCRIPT_DIR/statusline.sh")
-
-# Then: output includes branch name
-assert_eq "includes branch" "$expected" "$actual"
-```
-
-## Coverage Requirements
-
-- **Unit tests**: Cover what can be tested in isolation — argument parsing, output formatting, error handling, file operations, function behavior
-- **Integration tests**: Verify interactions between components (e.g., main function dispatching to helpers)
-- **Manual tests**: What cannot be unit tested (tmux sessions, CC startup, interactive prompts) must be documented as manual test tasks in a comment at the top of the test file
-
-## Meta-Rules
-
-- **Require tests for code**: Whenever a shell script is written or modified, its test script must be created or updated to cover the changes
-- **Require test rules for new code types**: When a code type without a corresponding test rule file is added (e.g., Python, TypeScript), propose a new `.claude/rules/testing-<type>.md` following the same structure as this file

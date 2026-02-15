@@ -10,4 +10,4 @@
 
 ## Script Testing
 
-See `.claude/rules/testing-shell.md` for test conventions, code format, and coverage requirements.
+See `.claude/rules/testing.md` for common test rules (Given-When-Then, coverage, meta-rules) and `.claude/rules/testing-shell.md` for shell-specific conventions.
