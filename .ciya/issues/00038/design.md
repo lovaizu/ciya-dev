@@ -32,5 +32,31 @@ Test rules exist only as three bullet points in CLAUDE.md. Six test scripts shar
 
 ## Open Questions
 
-- Coverage tool evaluation: what options exist for bash coverage? (kcov, bashcov, etc.)
-- Should the Given-When-Then structure be enforced via comments or just via code organization?
+- ~~Coverage tool evaluation~~ → Resolved (see below)
+- ~~Given-When-Then enforcement~~ → Resolved: via comments for multi-step tests; implicit for one-liner assertions
+
+## Tool Evaluation
+
+### Coverage Tools
+
+| Tool | How it works | Pros | Cons |
+|------|-------------|------|------|
+| kcov | Traces bash via `PS4`/`BASH_XTRACEFD`; outputs Cobertura XML | Mature, CI-friendly | Requires C++ build/install, heavyweight for 6 small scripts |
+| bashcov | Ruby gem wrapping simplecov | Familiar coverage reports | Requires Ruby runtime, not maintained actively |
+| (none) | Manual coverage via test review | Zero dependencies, no maintenance | No automated coverage metrics |
+
+### Test Frameworks
+
+| Tool | How it works | Pros | Cons |
+|------|-------------|------|------|
+| bats-core | TAP-compliant test runner with `@test` blocks | Standard output format, setup/teardown hooks | Changes test file format, adds dependency |
+| shunit2 | xUnit-style framework for shell | Familiar xUnit API | Heavyweight for simple tests, adds dependency |
+| plain bash | Manual assert helpers, exit code | Zero dependencies, already in use | No built-in test discovery or reporting |
+
+### Decision: Keep plain bash, no external tools
+
+1. The test suite has 6 scripts — too small to justify framework/tool overhead
+2. All scripts already converge on a consistent pattern (assert helpers, counters, summary)
+3. Adding tools contradicts the existing "plain bash, no external frameworks" rule
+4. Coverage tools require installation and build steps that complicate the setup
+5. If the project grows to need these tools, the new tool-adoption rule provides a process to revisit
