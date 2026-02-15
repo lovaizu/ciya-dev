@@ -4,7 +4,7 @@ set -euo pipefail
 # wc.sh — Welcome! One-time bootstrap for ciya-dev.
 # Creates: ciya-dev/ with bare clone + .env + up.sh symlink
 #
-# Usage: curl -fsSL <raw-url>/wc.sh -o wc.sh && bash wc.sh
+# Usage: curl -fsSL <raw-url>/wc.sh | bash
 
 repo_url="https://github.com/lovaizu/ciya-dev.git"
 dir="ciya-dev"
