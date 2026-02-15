@@ -5,7 +5,7 @@ set -euo pipefail
 # Tests run the actual wc.sh with repo_url overridden via sed.
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-WC_SH="$SCRIPT_DIR/wc.sh"
+WC_SH="$SCRIPT_DIR/../../wc.sh"
 
 pass=0
 fail=0

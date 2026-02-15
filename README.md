@@ -8,7 +8,7 @@ Claude Code in your area
 
 ```bash
 # Download and run bootstrap
-curl -fsSL https://raw.githubusercontent.com/lovaizu/ciya-dev/main/.ciya/scripts/wc.sh -o wc.sh
+curl -fsSL https://raw.githubusercontent.com/lovaizu/ciya-dev/main/wc.sh -o wc.sh
 bash wc.sh
 
 # You now have:
@@ -171,7 +171,7 @@ ciya-dev/
 ├── up.sh               Symlink → main/.ciya/scripts/up.sh
 ├── main/               Issue management worktree
 │   ├── .ciya/
-│   │   ├── scripts/    wc.sh, up.sh
+│   │   ├── scripts/    up.sh
 │   │   └── issues/     Work records per issue
 │   ├── .claude/        Commands, rules, hooks
 │   └── ...
