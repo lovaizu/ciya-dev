@@ -153,6 +153,7 @@ remove_excess_worktrees() {
 launch_tmux() {
   local count="$1"
   local total=$((count + 1))
+  local max_cols=4
 
   # If session already exists, kill it to apply new configuration
   if tmux has-session -t "$SESSION_NAME" 2>/dev/null; then
@@ -168,40 +169,60 @@ launch_tmux() {
 
   # Build directory list: main first, then work-1..N
   local -a dirs=("$REPO_ROOT/main")
-  local -a names=("main")
   for i in $(seq 1 "$count"); do
     dirs+=("$REPO_ROOT/work-$i")
-    names+=("work-$i")
   done
+
+  # Collect pane IDs in dirs[] order for reliable targeting
+  local -a pids=()
 
   # Create session with first pane (main)
   tmux new-session -d -s "$SESSION_NAME" -c "${dirs[0]}"
+  pids+=("$(tmux display-message -t "$SESSION_NAME" -p '#{pane_id}')")
 
-  # Create remaining panes
-  for i in $(seq 1 $((total - 1))); do
-    tmux split-window -t "$SESSION_NAME:0" -c "${dirs[$i]}"
-    tmux select-layout -t "$SESSION_NAME:0" tiled
-  done
-
-  # Final layout: single row for ≤4 panes, tiled grid for >4
-  if [ "$total" -le 4 ]; then
-    tmux select-layout -t "$SESSION_NAME:0" even-horizontal
+  if [ "$total" -le "$max_cols" ]; then
+    # Single row: chain horizontal splits (each split divides the active pane)
+    for (( i = 1; i < total; i++ )); do
+      local pct=$(( 100 * (total - i) / (total - i + 1) ))
+      pids+=("$(tmux split-window -h -P -F '#{pane_id}' -t "$SESSION_NAME" -c "${dirs[$i]}" -l "${pct}%")")
+    done
   else
-    tmux select-layout -t "$SESSION_NAME:0" tiled
+    # Two rows: top row has max_cols panes, bottom row has the rest
+    local top_n=$max_cols
+    local bot_n=$(( total - top_n ))
+
+    # Create bottom row with full-width vertical split
+    local bot_first
+    bot_first=$(tmux split-window -v -f -P -F '#{pane_id}' -t "${pids[0]}" -c "${dirs[$top_n]}" -l 50%)
+
+    # Fill top row: select first pane, then chain horizontal splits
+    tmux select-pane -t "${pids[0]}"
+    for (( i = 1; i < top_n; i++ )); do
+      local pct=$(( 100 * (top_n - i) / (top_n - i + 1) ))
+      pids+=("$(tmux split-window -h -P -F '#{pane_id}' -t "$SESSION_NAME" -c "${dirs[$i]}" -l "${pct}%")")
+    done
+
+    # Add bottom row first pane
+    pids+=("$bot_first")
+
+    # Fill bottom row if more than 1 pane
+    if [ "$bot_n" -gt 1 ]; then
+      tmux select-pane -t "$bot_first"
+      for (( i = 1; i < bot_n; i++ )); do
+        local dir_idx=$(( top_n + i ))
+        local pct=$(( 100 * (bot_n - i) / (bot_n - i + 1) ))
+        pids+=("$(tmux split-window -h -P -F '#{pane_id}' -t "$SESSION_NAME" -c "${dirs[$dir_idx]}" -l "${pct}%")")
+      done
+    fi
   fi
 
-  # Show pane titles in borders
-  tmux set-option -t "$SESSION_NAME" pane-border-status top
-  tmux set-option -t "$SESSION_NAME" pane-border-format " #{pane_title} "
-
-  # Name each pane and launch CC
-  for i in $(seq 0 $((total - 1))); do
-    tmux select-pane -t "$SESSION_NAME:0.$i" -T "${names[$i]}"
-    tmux send-keys -t "$SESSION_NAME:0.$i" "$env_cmd && claude --dangerously-skip-permissions" Enter
+  # Launch CC in each pane
+  for pid in "${pids[@]}"; do
+    tmux send-keys -t "$pid" "$env_cmd && claude --dangerously-skip-permissions" Enter
   done
 
   # Select first pane (main)
-  tmux select-pane -t "$SESSION_NAME:0.0"
+  tmux select-pane -t "${pids[0]}"
 
   exec tmux attach -t "$SESSION_NAME"
 }
