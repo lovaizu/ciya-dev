@@ -1,5 +1,7 @@
 # Issue Format
 
+The issue defines user value. It is reviewed at Gate 1 (Goal): do Benefit and SC capture the right user value?
+
 **Title:** Use user story format: "As a [role], I want [goal] so that [benefit]"
 
 - [goal] must be the user's desired outcome, not a technical means or implementation detail
@@ -19,14 +21,16 @@
 {Who benefits and how, once resolved}
 
 - Use "[who] can [what]" form
+- Each Benefit must trace from a Pain
 - Good: "Developers can run multiple tasks in parallel"
 - Bad: "Development throughput is improved"
 
 ## Success Criteria
-- [ ] {Condition that verifies the Benefit is achieved}
+- [ ] {Condition that verifies a Benefit is achieved}
 - [ ] {Condition}
 
-- Must verify Benefit achievement, not describe tasks to complete
+- Each SC must verify a specific Benefit — an SC with no Benefit link is measuring the wrong thing
+- Must be verifiable conditions, not tasks to complete
 - Good: "A developer can create a worktree and start parallel work by following the documented steps"
 - Bad: "CLAUDE.md has a Worktree section with setup instructions"
 ```

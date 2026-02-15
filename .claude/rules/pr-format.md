@@ -1,5 +1,7 @@
 # PR Format
 
+The PR defines the means to achieve the goal. It is reviewed at Gate 2 (Approach): can Approach and Tasks achieve Benefit through SC?
+
 **Title:** A concise title describing the purpose of the work
 
 **Body:**
@@ -10,10 +12,15 @@ Closes #{issue number}
 ## Approach
 {Solution strategy and design decisions}
 
+- Must address each Pain from the issue — an unaddressed Pain is an unresolved problem
+
 ## Tasks
-- [ ] {Task}
-- [ ] {Task}
-- [ ] {Task}
+- [ ] {Task} → SC: {which Success Criteria this achieves}
+- [ ] {Task} → SC: {which Success Criteria this achieves}
+- [ ] {Task} → SC: {which Success Criteria this achieves}
+
+- Each Task must trace to one or more SC — a Task with no SC link is unnecessary
+- Each SC must be covered by at least one Task — an uncovered SC will not be achieved
 
 ## Expert Review
 
