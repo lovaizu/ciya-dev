@@ -25,12 +25,12 @@ Follow this workflow for every task. Three phases, each with a purpose and a gat
 
 ## Phase 2: Approach (work-N/ worktree)
 
-**Purpose:** Design the optimal means to achieve the goal.
+**Purpose:** Design the means to achieve the Success Criteria.
 
 4. **PR description**
    - Draft the PR title (concise, describes purpose)
    - Draft the PR body with Approach and Tasks (see `pr-format.md`)
-   - Ensure Approach addresses each Pain from the issue
+   - Ensure each Task is derivable from the Approach
    - Ensure each Task traces to one or more Success Criteria
    - Ensure each Success Criteria is covered by at least one Task
    - Create the PR on GitHub with `gh pr create`
@@ -39,8 +39,8 @@ Follow this workflow for every task. Three phases, each with a purpose and a gat
    - Developer reviews the PR on GitHub
    - `/fb` to address feedback comments on the PR
    - `/ty` to approve
-   - **The developer asks:** Can Approach and Tasks achieve Benefit through SC?
-   - **Relevant:** Does Approach address each Pain? Do Tasks trace to SC? Is this the optimal strategy?
+   - **The developer asks:** Can Approach and Tasks achieve all SC?
+   - **Relevant:** Does Approach provide a viable means to achieve all SC? Do Tasks trace to SC? Is this the optimal strategy?
    - **Irrelevant:** Whether the goal itself is right (already approved at Gate 1)
 
 ## Phase 3: Delivery (work-N/ worktree)
@@ -56,7 +56,7 @@ Follow this workflow for every task. Three phases, each with a purpose and a gat
    - Verify each Pain arises from the Situation
    - Verify each Benefit traces from a Pain
    - Verify each Success Criteria maps to a Benefit
-   - Verify PR Approach addresses each Pain
+   - Verify each PR Task is derivable from the Approach
    - Verify each PR Task traces to one or more Success Criteria
    - Verify each Success Criteria is covered by at least one Task
    - If any section was updated during earlier steps, re-check all sections

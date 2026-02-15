@@ -1,6 +1,6 @@
 # PR Format
 
-The PR defines the means to achieve the goal. It is reviewed at Gate 2 (Approach): can Approach and Tasks achieve Benefit through SC?
+The PR defines the means to achieve the Success Criteria. It is reviewed at Gate 2 (Approach): can Approach and Tasks achieve all SC?
 
 **Title:** A concise title describing the purpose of the work
 
@@ -10,9 +10,9 @@ The PR defines the means to achieve the goal. It is reviewed at Gate 2 (Approach
 Closes #{issue number}
 
 ## Approach
-{Solution strategy and design decisions}
+{Means to achieve the Success Criteria}
 
-- Must address each Pain from the issue — an unaddressed Pain is an unresolved problem
+- Each Task must be derivable from the Approach — a Task unrelated to the Approach indicates a misalignment
 
 ## Tasks
 - [ ] {Task} → SC: {which Success Criteria this achieves}

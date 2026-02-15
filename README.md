@@ -6,6 +6,96 @@ Claude Code in your area — multiple Claude Code instances, right in your dev e
 - **Scale as one** — Async checkpoints let you run multiple instances in parallel and multiply your throughput
 - **Walk away anytime** — Save and restore work state on demand. Step away, come back, pick up where you left off
 
+## Traceability Chain
+
+Every element in the workflow traces back to user value. If a link is missing, the process breaks.
+
+```mermaid
+flowchart TD
+    subgraph p1["Phase 1: Goal — Define user value"]
+        direction LR
+        S[Situation] --> P[Pain]
+        P --> B[Benefit]
+        B --> SC[Success Criteria]
+    end
+    p1 --> G1{{"Gate 1: Right value?"}}
+    G1 --> p2
+    subgraph p2["Phase 2: Approach — Design means to achieve SC"]
+        direction LR
+        A[Approach] --> T[Tasks]
+    end
+    T -.->|achieves| SC
+    p2 --> G2{{"Gate 2: Right means?"}}
+    G2 --> p3
+    subgraph p3["Phase 3: Delivery — Verify achievement"]
+        direction LR
+        EX[Execute Tasks] --> V[Verify SC met]
+    end
+    p3 --> G3{{"Gate 3: Value delivered?"}}
+```
+
+**Issue (what):**
+- **Situation** — Observable facts and circumstances
+- **Pain** — Who suffers and how (the problem to solve)
+- **Benefit** — Who gains what, once resolved (the value to deliver)
+- **Success Criteria** — Verifiable conditions that prove Benefit is achieved
+
+**PR (how):**
+- **Approach** — Means to achieve the Success Criteria
+- **Tasks** — Steps to implement the Approach, each mapped to one or more SC
+
+Issue-side rules:
+- Every Pain must arise from the Situation. A Pain with no Situation basis is an ungrounded assumption.
+- Every Benefit must trace from a Pain. A Benefit with no Pain link is solving a problem that doesn't exist.
+- Every SC must connect to a Benefit. An SC with no Benefit link is measuring the wrong thing.
+
+PR-side rules:
+- Every Task must be derivable from the Approach. A Task unrelated to the Approach indicates a misalignment.
+- Every Task must connect to at least one SC. A Task with no SC link is unnecessary.
+- Every SC must be covered by at least one Task. An uncovered SC will not be achieved.
+
+## Phases and Gates
+
+The workflow has three phases. Each phase has a clear purpose, and a gate where the developer reviews whether that purpose is met.
+
+| Phase | Purpose | Gate | The developer asks |
+|-------|---------|------|--------------------|
+| **Goal** | Define user value | Gate 1: Goal | Do Benefit and SC capture the right user value? |
+| **Approach** | Design means to achieve SC | Gate 2: Approach | Can Approach and Tasks achieve all SC? |
+| **Delivery** | Verify achievement | Gate 3: Verification | Are SC met and Benefits realized? |
+
+### Goal Phase (main/ worktree)
+
+**Purpose:** Define what user value we want to deliver.
+
+The developer and agent identify Pain, articulate the desired Benefit, and define Success Criteria that verify the Benefit is achieved.
+
+**Gate 1 — Goal:**
+- **Relevant:** Situation, Pain, Benefit, SC — are the facts accurate, the problem real, and the measure of success right?
+- **Irrelevant:** Implementation details, current architecture, technical feasibility
+
+### Approach Phase (work-N/ worktree)
+
+**Purpose:** Design the means to achieve the Success Criteria.
+
+The agent drafts an Approach (means) and breaks it into Tasks (steps), each mapped to one or more SC.
+
+**Gate 2 — Approach:**
+- **Relevant:** Does Approach provide a viable means to achieve all SC? Do Tasks trace to SC? Is this the optimal strategy?
+- **Irrelevant:** Whether the goal itself is right (already approved at Gate 1)
+
+### Delivery Phase (work-N/ worktree)
+
+**Purpose:** Implement and verify that the goal is achieved.
+
+The agent implements Tasks, verifies SC are met, and confirms Benefits are realized.
+
+**Gate 3 — Verification:**
+- **Relevant:** Are SC met? Are Benefits realized? Does the implementation match the approved Approach?
+- **Irrelevant:** Whether the approach was optimal (already approved at Gate 2)
+
+At each gate: review on GitHub, leave comments if needed (`/fb` to address them), then `/ty` to approve.
+
 ## Workflow
 
 ```mermaid
@@ -32,7 +122,7 @@ flowchart TD
         CHK --> R3["Developer reviews"]
         R3 --> FB3["/fb — Address comments"]
         FB3 --> R3
-        R3 --> G3["/ty — Gate 3: Goal Verification"]
+        R3 --> G3["/ty — Gate 3: Verification"]
         G3 --> MRG["Merge"]
     end
 
@@ -115,76 +205,6 @@ In a **work-N/** pane:
 | `/bb` | work-N/ | Interrupt work, save state for resumption |
 | `/fb` | any | Address feedback comments on Issues or PRs |
 | `/ty` | any | Approve the current gate |
-
-## Traceability Chain
-
-Every element in the workflow traces back to user value. If a link is missing, the process breaks.
-
-```mermaid
-flowchart LR
-    S[Situation] --> P[Pain]
-    P --> B[Benefit]
-    B --> SC[Success Criteria]
-    P -.->|addresses| A[Approach]
-    A --> T[Tasks]
-    T -.->|achieves| SC
-```
-
-- **Situation** — Observable facts and circumstances
-- **Pain** — Who suffers and how (the problem to solve)
-- **Benefit** — Who gains what, once resolved (the value to deliver)
-- **Success Criteria** — Verifiable conditions that prove Benefit is achieved
-- **Approach** — Strategy that addresses each Pain
-- **Tasks** — Steps that achieve each SC through the Approach
-
-Rules:
-- Every Pain must arise from the Situation. A Pain with no Situation basis is an ungrounded assumption.
-- Every Benefit must trace from a Pain. A Benefit with no Pain link is solving a problem that doesn't exist.
-- Every SC must connect to a Benefit. An SC with no Benefit link is measuring the wrong thing.
-- The Approach must address every Pain. An unaddressed Pain is an unresolved problem.
-- Every Task must connect to at least one SC. A Task with no SC link is unnecessary.
-
-## Phases and Gates
-
-The workflow has three phases. Each phase has a clear purpose, and a gate where the developer reviews whether that purpose is met.
-
-| Phase | Purpose | Gate | The developer asks |
-|-------|---------|------|--------------------|
-| **Goal** | Define user value | Gate 1: Goal | Do Benefit and SC capture the right user value? |
-| **Approach** | Design optimal means | Gate 2: Approach | Can Approach and Tasks achieve Benefit through SC? |
-| **Delivery** | Verify achievement | Gate 3: Verification | Are SC met and Benefits realized? |
-
-### Goal Phase (main/ worktree)
-
-**Purpose:** Define what user value we want to deliver.
-
-The developer and agent identify Pain, articulate the desired Benefit, and define Success Criteria that verify the Benefit is achieved.
-
-**Gate 1 — Goal:**
-- **Relevant:** Situation, Pain, Benefit, SC — are the facts accurate, the problem real, and the measure of success right?
-- **Irrelevant:** Implementation details, current architecture, technical feasibility
-
-### Approach Phase (work-N/ worktree)
-
-**Purpose:** Design the optimal means to achieve the goal.
-
-The agent drafts an Approach that addresses each Pain and breaks it into Tasks that achieve each SC.
-
-**Gate 2 — Approach:**
-- **Relevant:** Does Approach address each Pain? Do Tasks trace to SC? Is this the optimal strategy?
-- **Irrelevant:** Whether the goal itself is right (already approved at Gate 1)
-
-### Delivery Phase (work-N/ worktree)
-
-**Purpose:** Implement and verify that the goal is achieved.
-
-The agent implements Tasks, verifies SC are met, and confirms Benefits are realized.
-
-**Gate 3 — Verification:**
-- **Relevant:** Are SC met? Are Benefits realized? Does the implementation match the approved Approach?
-- **Irrelevant:** Whether the approach was optimal (already approved at Gate 2)
-
-At each gate: review on GitHub, leave comments if needed (`/fb` to address them), then `/ty` to approve.
 
 ## Directory Structure
 
