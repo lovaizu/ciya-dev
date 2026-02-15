@@ -8,8 +8,8 @@ CWD="$REPO_ROOT"
 
 export CIYA_ALLOWED_DOMAINS_FILE="$SCRIPT_DIR/allowed-domains.txt"
 
-pass=0
-fail=0
+passed=0
+failed=0
 
 run_hook() {
   local json="$1"
@@ -37,11 +37,11 @@ assert_decision() {
 
   if [[ "$actual" == "$expected" ]]; then
     echo "  PASS: $test_name"
-    pass=$((pass + 1))
+    passed=$((passed + 1))
   else
     echo "  FAIL: $test_name (expected=$expected, actual=$actual)"
     [[ -n "$output" ]] && echo "        output: $output"
-    fail=$((fail + 1))
+    failed=$((failed + 1))
   fi
 }
 
@@ -596,5 +596,5 @@ assert_decision "gh issue edit with destructive text in body" "allow" \
 
 # ============================================================
 echo ""
-echo "=== Results: $pass passed, $fail failed ==="
-[[ $fail -eq 0 ]] && echo "All tests passed!" || exit 1
+echo "=== Results: $passed passed, $failed failed ==="
+[[ $failed -eq 0 ]] && echo "All tests passed!" || exit 1

@@ -9,8 +9,8 @@ TMPDIR_ROOT=$(mktemp -d)
 cleanup() { rm -rf "$TMPDIR_ROOT"; }
 trap cleanup EXIT
 
-pass=0
-fail=0
+passed=0
+failed=0
 
 assert_grade() {
   local test_name=$1 expected_grade=$2 skill_dir=$3
@@ -19,10 +19,10 @@ assert_grade() {
   grade=$(echo "$output" | grep -o '"grade": *"[^"]*"' | sed 's/.*"grade": *"//;s/"//')
   if [[ "$grade" == "$expected_grade" ]]; then
     echo "PASS: $test_name (got $grade)"
-    pass=$((pass + 1))
+    passed=$((passed + 1))
   else
     echo "FAIL: $test_name — expected $expected_grade, got $grade"
-    fail=$((fail + 1))
+    failed=$((failed + 1))
   fi
 }
 
@@ -30,10 +30,10 @@ assert_exit_fail() {
   local test_name=$1 skill_dir=$2
   if bash "$VALIDATE" "$skill_dir" >/dev/null 2>&1; then
     echo "FAIL: $test_name — expected non-zero exit"
-    fail=$((fail + 1))
+    failed=$((failed + 1))
   else
     echo "PASS: $test_name (exit non-zero)"
-    pass=$((pass + 1))
+    passed=$((passed + 1))
   fi
 }
 
@@ -50,10 +50,10 @@ assert_verdict_count() {
   esac
   if [[ "$count" == "$expected" ]]; then
     echo "PASS: $test_name ($verdict=$count)"
-    pass=$((pass + 1))
+    passed=$((passed + 1))
   else
     echo "FAIL: $test_name — expected $verdict=$expected, got $verdict=$count"
-    fail=$((fail + 1))
+    failed=$((failed + 1))
   fi
 }
 
@@ -218,5 +218,5 @@ assert_verdict_count "skill-smith 0 WARN" "WARN" "0" "$SCRIPT_DIR/.."
 
 # --- Results ---
 echo ""
-echo "Results: $pass passed, $fail failed"
-[[ $fail -eq 0 ]]
+echo "Results: $passed passed, $failed failed"
+[[ $failed -eq 0 ]]

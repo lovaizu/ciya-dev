@@ -7,18 +7,18 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 UP_SH="$SCRIPT_DIR/up.sh"
 
-pass=0
-fail=0
+passed=0
+failed=0
 
 run_test() {
   local name="$1"
   shift
   if "$@"; then
     echo "PASS: $name"
-    pass=$((pass + 1))
+    passed=$((passed + 1))
   else
     echo "FAIL: $name"
-    fail=$((fail + 1))
+    failed=$((failed + 1))
   fi
 }
 
@@ -201,5 +201,5 @@ run_test "Config created after successful run" test_config_after_run
 
 # --- Results ---
 echo ""
-echo "Results: $pass passed, $fail failed"
-[ "$fail" -eq 0 ]
+echo "Results: $passed passed, $failed failed"
+[ "$failed" -eq 0 ]

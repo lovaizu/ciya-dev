@@ -7,18 +7,18 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 WC_SH="$SCRIPT_DIR/wc.sh"
 
-pass=0
-fail=0
+passed=0
+failed=0
 
 run_test() {
   local name="$1"
   shift
   if "$@"; then
     echo "PASS: $name"
-    pass=$((pass + 1))
+    passed=$((passed + 1))
   else
     echo "FAIL: $name"
-    fail=$((fail + 1))
+    failed=$((failed + 1))
   fi
 }
 
@@ -139,5 +139,5 @@ run_test "Cleanup on failure (trap removes ciya-dev/)" test_cleanup_on_failure
 
 # --- Results ---
 echo ""
-echo "Results: $pass passed, $fail failed"
-[ "$fail" -eq 0 ]
+echo "Results: $passed passed, $failed failed"
+[ "$failed" -eq 0 ]
