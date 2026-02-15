@@ -39,24 +39,44 @@ Test rules exist only as three bullet points in CLAUDE.md. Six test scripts shar
 
 ### Coverage Tools
 
-| Tool | How it works | Pros | Cons |
-|------|-------------|------|------|
-| kcov | Traces bash via `PS4`/`BASH_XTRACEFD`; outputs Cobertura XML | Mature, CI-friendly | Requires C++ build/install, heavyweight for 6 small scripts |
-| bashcov | Ruby gem wrapping simplecov | Familiar coverage reports | Requires Ruby runtime, not maintained actively |
-| (none) | Manual coverage via test review | Zero dependencies, no maintenance | No automated coverage metrics |
+| Tool | Install | Dependencies | How it works | Output | Maintenance |
+|------|---------|-------------|-------------|--------|-------------|
+| kcov | `apt install kcov` (v38) or build from source (latest v43) | C++ build chain if from source; none at runtime | Traces bash via `BASH_XTRACEFD`; no script changes needed | HTML, Cobertura XML, JSON | Active (last commit Jan 2026) |
+| bashcov | `gem install bashcov` | Ruby >= 3.2.0 + simplecov | Uses `set -x` with custom `PS4`; no script changes needed | HTML via simplecov | Active (last commit Jan 2026) |
+| (none) | — | — | Manual review | — | — |
+
+**kcov usage** — wraps existing test scripts without modification:
+```
+kcov --include-path=. /tmp/coverage ./foo_test.sh
+# Produces /tmp/coverage/foo_test.sh/index.html + cobertura.xml
+```
+
+**Recommendation: Adopt kcov**
+- Provides quantitative C1 coverage data — detects missed branches that code review might overlook
+- Zero changes to existing test scripts (just wraps the invocation)
+- Industry standard for bash coverage (kcov is the de facto tool; coverage measurement is rare but kcov is what's used when it is done)
+- `apt install kcov` is sufficient for a working setup
+- Overhead: one package install in setup script + `kcov` prefix when running tests
 
 ### Test Frameworks
 
-| Tool | How it works | Pros | Cons |
-|------|-------------|------|------|
-| bats-core | TAP-compliant test runner with `@test` blocks | Standard output format, setup/teardown hooks | Changes test file format, adds dependency |
-| shunit2 | xUnit-style framework for shell | Familiar xUnit API | Heavyweight for simple tests, adds dependency |
-| plain bash | Manual assert helpers, exit code | Zero dependencies, already in use | No built-in test discovery or reporting |
+| Tool | Install | How it works | Stars | Maintenance |
+|------|---------|-------------|-------|-------------|
+| bats-core | `apt install bats` or `npm install -g bats` | TAP-compliant `@test` blocks with auto-isolation | 5,832 | Very active (last commit Feb 2026) |
+| shunit2 | Manual download | xUnit-style functions | ~500 | Low activity |
+| ShellSpec | Manual install | BDD-style DSL, POSIX-compatible | 1,346 | Active |
+| plain bash | — | Manual assert helpers, exit code | — | — |
 
-### Decision: Keep plain bash, no external tools
+**Industry practice**: bats-core is the dominant framework (used by Docker, rbenv, nvm, Homebrew). Plain bash tests are common in smaller projects.
 
-1. The test suite has 6 scripts — too small to justify framework/tool overhead
-2. All scripts already converge on a consistent pattern (assert helpers, counters, summary)
-3. Adding tools contradicts the existing "plain bash, no external frameworks" rule
-4. Coverage tools require installation and build steps that complicate the setup
-5. If the project grows to need these tools, the new tool-adoption rule provides a process to revisit
+**Recommendation: Keep plain bash**
+- bats-core would require rewriting all 6 existing test scripts to `@test` format
+- Our plain bash tests already provide GWT structure, assert helpers, and consistent formatting
+- The benefit (auto-isolation, TAP output, parallel execution) is not justified for 6 scripts
+
+### Decision Summary
+
+| Category | Decision | Rationale |
+|----------|----------|-----------|
+| Coverage | **Adopt kcov** | Quantitative coverage with zero test changes; `apt install kcov` |
+| Framework | **Keep plain bash** | Rewriting 6 scripts to bats-core is not justified |
