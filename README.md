@@ -1,19 +1,49 @@
 # ciya-dev
 
-Claude Code in your area
+A development workflow framework for running multiple Claude Code instances in parallel using git worktrees and tmux. Each instance works on a separate issue with structured gates for goal alignment, approach review, and verification.
 
-## Step-by-step Usage
+## Workflow
+
+```mermaid
+flowchart TD
+    subgraph "main/ worktree"
+        H["/hi — Hearing"] --> I["Issue → GitHub"]
+        I --> R1["Developer reviews"]
+        R1 --> FB1["/fb — Address comments"]
+        FB1 --> R1
+        R1 --> G1["/ty — Gate 1: Goal"]
+    end
+
+    subgraph "work-N/ worktree"
+        HI["/hi N — Start or resume"] --> WR{Work records?}
+        WR -- new --> BR["Create branch + PR"]
+        WR -- resume --> RS["Restore state"]
+        BR --> R2["Developer reviews"]
+        RS --> R2
+        R2 --> FB2["/fb — Address comments"]
+        FB2 --> R2
+        R2 --> G2["/ty — Gate 2: Approach"]
+        G2 --> IMPL["Implementation"]
+        IMPL --> CHK["Checks & Expert Review"]
+        CHK --> R3["Developer reviews"]
+        R3 --> FB3["/fb — Address comments"]
+        FB3 --> R3
+        R3 --> G3["/ty — Gate 3: Goal Verification"]
+        G3 --> MRG["Merge"]
+    end
+
+    G1 -.->|"/hi N in work-N/"| HI
+    BB["/bb — Interrupt & save"] -.-> WR
+```
+
+At any point, `/bb` saves progress to `.ciya/issues/nnnnn/resume.md` for later resumption.
+
+## Usage
 
 ### First-time setup
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/lovaizu/ciya-dev/main/scripts/wc.sh | bash
-
-# You now have:
-#   ciya-dev/.bare/    ← bare clone
-#   ciya-dev/.env      ← from .env.example (edit this)
-#   ciya-dev/main/     ← main branch worktree
-#   ciya-dev/up.sh     ← symlink → main/scripts/up.sh
 
 cd ciya-dev
 vi .env    # Set GH_TOKEN and other tokens
@@ -33,30 +63,14 @@ vi .env    # Set GH_TOKEN and other tokens
 
 ```bash
 ./up.sh
-# No arguments → reads saved config and starts with the same number of worktrees
-# If last run was "up.sh 4", this is equivalent to "up.sh 4"
+# No arguments → reads saved config (or CIYA_WORK_COUNT from .env)
 ```
 
 ### Scaling worktrees up and down
 
 ```bash
-./up.sh 6
-# Adds work-5/ and work-6/ to the existing worktrees
-# Restarts tmux with 7 panes (main + 6 workers)
-
-./up.sh 4
-# Removes work-5/ and work-6/ (only if they have no uncommitted changes)
-# Restarts tmux with 5 panes (main + 4 workers)
-```
-
-### Keeping up.sh up to date
-
-```bash
-# In the main/ worktree:
-cd main && git pull && cd ..
-
-# up.sh at repo root is a symlink to main/scripts/up.sh
-# After git pull, ./up.sh automatically runs the latest version
+./up.sh 6    # Adds work-5/ and work-6/
+./up.sh 4    # Removes work-5/ and work-6/ (only if clean)
 ```
 
 ### Working on issues
@@ -64,7 +78,6 @@ cd main && git pull && cd ..
 In the **main/** pane:
 ```
 /hi                    # Start hearing → brainstorm → create issue on GitHub
-                       # Review the issue on GitHub, leave comments if needed
 /fb                    # Address any issue comments
 /ty                    # Gate 1: Approve the goal
 ```
@@ -72,12 +85,9 @@ In the **main/** pane:
 In a **work-N/** pane:
 ```
 /hi 42                 # Start working on issue #42
-                       # Creates branch, work records, and draft PR on GitHub
-                       # Review the PR on GitHub, leave comments if needed
 /fb                    # Address any PR comments
 /ty                    # Gate 2: Approve the approach → implementation begins
                        # ... CC implements, pushes commits ...
-                       # Review on GitHub, leave comments if needed
 /fb                    # Address any review comments
 /ty                    # Gate 3: Verify goal achieved → squash merge
 ```
@@ -85,59 +95,8 @@ In a **work-N/** pane:
 ### Interrupting and resuming work
 
 ```
-/bb                    # In any work-N/ pane: saves state to .ciya/issues/nnnnn/resume.md
-                       # You can now work on a different issue in this pane
-
-/hi 42                 # Later, in any work-N/: reads resume.md and picks up where you left off
-```
-
-## Workflow
-
-```
-CC (main/)                                  CC (work-N/)
-──────────                                  ────────────
-
-  /hi                                       /hi <issue#>
-   │                                             │
-   ▼                                             ▼
-  Hearing                                   .ciya/issues/nnnnn/ read
-  (brainstorm)                                   │
-   │                                         ┌───┴───┐
-   ▼                                        new   resume
-  Issue → GitHub                             │       │
-   │                                         ▼       ▼
-   ▼                                        Branch   Restore
-  Developer reviews on GitHub                │       │
-   │                                         └───┬───┘
-  /fb ← Issue comments                          ▼
-   │                                        PR → GitHub
-   ▼                                             │
-  /ty ── Gate 1: Goal                            ▼
-   │     Right problem and goal?            Developer reviews on GitHub
-   ▼                                             │
-  Next /hi                                  /fb ← PR comments
-                                                 │
-                                                 ▼
-                                            /ty ── Gate 2: Approach
-                                                 │  Can this achieve the goal?
-                                                 ▼
-                                            Implementation
-                                                 │
-                                                 ▼
-                                            Checks & Review
-                                                 │
-                                            /fb ← PR comments
-                                                 │
-                                                 ▼
-                                            /ty ── Gate 3: Goal Verification
-                                                 │  Has the goal been achieved?
-                                                 ▼
-                                            Merge (--delete-branch)
-                                                 │
-                                                 ▼
-                                            Next /hi
-
-  * /bb at any point to interrupt and save state for later
+/bb                    # Saves state to .ciya/issues/nnnnn/resume.md
+/hi 42                 # Later, in any work-N/: resumes where you left off
 ```
 
 ## Commands
@@ -165,7 +124,7 @@ At each gate: review on GitHub, leave comments if needed (`/fb` to address them)
 ```
 ciya-dev/
 ├── .bare/              Bare clone
-├── .env                Environment variables
+├── .env                Environment variables (CIYA_* prefix)
 ├── up.sh               Symlink → main/scripts/up.sh
 ├── main/               Issue management worktree
 │   ├── scripts/        wc.sh, up.sh
