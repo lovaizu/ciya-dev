@@ -64,3 +64,48 @@ echo "Results: $passed passed, $failed failed"
 
 - Tests that create files or directories must use `mktemp -d` and clean up with `trap 'rm -rf "$tmp"' EXIT`
 - Tests that only exercise pure functions (no filesystem side effects) may skip the temp directory
+
+## Coverage with kcov
+
+Run tests through kcov to measure C1 branch coverage. Test scripts require no modification — kcov wraps the execution.
+
+### Running coverage
+
+```bash
+# Single test
+kcov --include-path="$SCRIPT_DIR" --exclude-pattern=_test.sh \
+     --bash-parse-files-in-dirs="$SCRIPT_DIR" \
+     --bash-dont-parse-binary-dir \
+     ./coverage ./foo_test.sh
+
+# All tests in a directory (accumulates into one report)
+for f in *_test.sh; do
+    kcov --include-path="$PWD" --exclude-pattern=_test.sh \
+         --bash-parse-files-in-dirs="$PWD" \
+         --bash-dont-parse-binary-dir \
+         ./coverage "./$f"
+done
+```
+
+### Key flags
+
+| Flag | Purpose |
+|------|---------|
+| `--include-path=DIR` | Only report on source scripts in these directories |
+| `--exclude-pattern=_test.sh` | Exclude test scripts from coverage report |
+| `--bash-parse-files-in-dirs=DIR` | Include untested scripts in report (showing 0%) |
+| `--bash-dont-parse-binary-dir` | Don't auto-scan for sibling scripts |
+
+### Coverage exclusions
+
+Lines that cannot be covered (e.g., main guards for sourced scripts) may be excluded:
+
+```bash
+[[ "${BASH_SOURCE[0]}" == "$0" ]] && main "$@"  # LCOV_EXCL_LINE
+```
+
+### Known limitations
+
+- `set -x` in source scripts conflicts with kcov's default PS4 method — use `--bash-method=DEBUG` as a workaround
+- `eval` and complex heredocs may not be tracked accurately
+- Use absolute paths in `--include-path` when tests change the working directory

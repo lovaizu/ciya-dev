@@ -33,10 +33,11 @@ assert_eq "ampersand" '&amp;' "$(escape_for_xml '&')"
 
 - **Target**: C1 (branch) coverage at 100%
 - Every conditional branch (`if/else`, `case`, `&&/||`, loop boundaries) must have at least one test exercising each path
+- **Measurement**: Use kcov to produce quantitative coverage reports — do not rely solely on code review
 - **Unit tests**: Cover what can be tested in isolation — argument parsing, output formatting, error handling, file operations, function behavior
 - **Integration tests**: Verify interactions between components (e.g., main function dispatching to helpers)
 - **Manual tests**: What cannot be unit tested (tmux sessions, CC startup, interactive prompts) must be documented as manual test tasks in a comment at the top of the test file
-- Verified by code review (no automated coverage tool currently adopted — see `tool-adoption.md` for evaluation process)
+- Lines that cannot be covered (e.g., guards that prevent sourced scripts from running as main) may be excluded with `# LCOV_EXCL_LINE`
 
 ## Meta-Rules
 
