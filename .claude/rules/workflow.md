@@ -87,7 +87,7 @@ Follow this workflow for every task. Three phases, each with a purpose and a gat
     - Verify approval: `gh pr view <number> --json reviewDecision` must return `APPROVED`
     - If not `APPROVED`, ask the developer to approve the PR on GitHub first
     - Squash-merge: `gh pr merge <number> --squash`
-    - Detach HEAD and delete local branch: `git checkout --detach && git branch -D <branch-name>`
+    - Detach HEAD and delete branches: `git checkout --detach && git push origin --delete <branch-name> && git branch -D <branch-name>`
 
 12. **Done**
     - The work-N/ worktree is ready for the next `/hi <number>`
