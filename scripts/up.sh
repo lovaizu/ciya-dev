@@ -45,7 +45,7 @@ USAGE
 
 check_prerequisites() {
   local missing=()
-  for cmd in claude git tmux gh kcov; do
+  for cmd in claude git tmux gh; do
     if ! command -v "$cmd" >/dev/null 2>&1; then
       missing+=("$cmd")
     fi
@@ -55,6 +55,34 @@ check_prerequisites() {
     echo "Install them before running up.sh." >&2
     exit 1
   fi
+}
+
+ensure_kcov() {
+  if command -v kcov >/dev/null 2>&1; then
+    return 0
+  fi
+
+  echo "kcov not found. Installing from source..."
+
+  sudo apt-get update
+  sudo apt-get install -y binutils-dev build-essential cmake libssl-dev \
+    libcurl4-openssl-dev libelf-dev libstdc++-14-dev zlib1g-dev \
+    libdw-dev libiberty-dev
+
+  local build_dir
+  build_dir="$(mktemp -d)"
+  git clone https://github.com/SimonKagstrom/kcov.git "$build_dir/kcov"
+  cmake -S "$build_dir/kcov" -B "$build_dir/kcov/build"
+  make -C "$build_dir/kcov/build"
+  sudo make -C "$build_dir/kcov/build" install
+  rm -rf "$build_dir"
+
+  if ! command -v kcov >/dev/null 2>&1; then
+    echo "Error: kcov installation failed" >&2
+    exit 1
+  fi
+
+  echo "kcov installed successfully."
 }
 
 check_env() {
@@ -236,6 +264,7 @@ main() {
   fi
 
   check_prerequisites
+  ensure_kcov
   check_env
   load_env
 

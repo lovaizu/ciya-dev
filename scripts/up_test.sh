@@ -241,7 +241,7 @@ test_prerequisites_all_present() {
   # Given: a PATH with all required commands
   local fake_bin="$tmpdir/fake_bin"
   mkdir -p "$fake_bin"
-  for cmd in claude git tmux gh kcov; do
+  for cmd in claude git tmux gh; do
     printf '#!/bin/sh\ntrue\n' > "$fake_bin/$cmd"
     chmod +x "$fake_bin/$cmd"
   done
@@ -257,10 +257,10 @@ run_test "All prerequisites present" test_prerequisites_all_present
 
 # --- Test 11: Missing command detected ---
 test_prerequisites_missing_command() {
-  # Given: a PATH where kcov is missing
-  local fake_bin="$tmpdir/fake_bin_no_kcov"
+  # Given: a PATH where gh is missing
+  local fake_bin="$tmpdir/fake_bin_no_gh"
   mkdir -p "$fake_bin"
-  for cmd in claude git tmux gh; do
+  for cmd in claude git tmux; do
     printf '#!/bin/sh\ntrue\n' > "$fake_bin/$cmd"
     chmod +x "$fake_bin/$cmd"
   done
@@ -276,10 +276,10 @@ run_test "Missing command detected" test_prerequisites_missing_command
 
 # --- Test 12: Error message lists missing command names ---
 test_prerequisites_error_message() {
-  # Given: a PATH where gh and kcov are missing
+  # Given: a PATH where tmux and gh are missing
   local fake_bin="$tmpdir/fake_bin_partial"
   mkdir -p "$fake_bin"
-  for cmd in claude git tmux; do
+  for cmd in claude git; do
     printf '#!/bin/sh\ntrue\n' > "$fake_bin/$cmd"
     chmod +x "$fake_bin/$cmd"
   done
@@ -292,9 +292,29 @@ test_prerequisites_error_message() {
     check_prerequisites 2>&1
   )" || true
   # Then: error message includes both missing command names
-  [[ "$output" == *"gh"* ]] && [[ "$output" == *"kcov"* ]]
+  [[ "$output" == *"tmux"* ]] && [[ "$output" == *"gh"* ]]
 }
 run_test "Error message lists missing command names" test_prerequisites_error_message
+
+# ── ensure_kcov ───────────────────────────────────────────────
+echo "ensure_kcov:"
+
+# --- Test 13: ensure_kcov skips when kcov is already installed ---
+test_ensure_kcov_skips_when_installed() {
+  # Given: a PATH with kcov available
+  local fake_bin="$tmpdir/fake_bin_kcov"
+  mkdir -p "$fake_bin"
+  printf '#!/bin/sh\ntrue\n' > "$fake_bin/kcov"
+  chmod +x "$fake_bin/kcov"
+  # When+Then: ensure_kcov succeeds without calling sudo
+  (
+    export REPO_ROOT="$tmpdir/test1"
+    source "$UP_SH"
+    PATH="$fake_bin"
+    ensure_kcov
+  )
+}
+run_test "ensure_kcov skips when kcov is already installed" test_ensure_kcov_skips_when_installed
 
 # --- Results ---
 echo ""
