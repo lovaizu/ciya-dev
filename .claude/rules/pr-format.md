@@ -1,5 +1,7 @@
 # PR Format
 
+The PR defines the means to achieve the Success Criteria. It is reviewed at Gate 2 (Approach): can Approach and Steps achieve all SC?
+
 **Title:** A concise title describing the purpose of the work
 
 **Body:**
@@ -8,12 +10,28 @@
 Closes #{issue number}
 
 ## Approach
-{Solution strategy and design decisions}
 
-## Tasks
-- [ ] {Task}
-- [ ] {Task}
-- [ ] {Task}
+| SC | Approach |
+|----|----------|
+| SC1: {condition from issue} | {Why this method — the means to achieve this SC} |
+| SC2: {condition from issue} | {Why this method} |
+
+- Every SC from the issue must appear in the table — an uncovered SC will not be achieved
+- Explain why this approach was chosen over alternatives when the choice is non-obvious
+
+## Steps
+
+### {Approach for SC1}
+- [ ] {Step}
+- [ ] {Step}
+
+### {Approach for SC2}
+- [ ] {Step}
+- [ ] {Step}
+
+- Steps are grouped by the Approach they implement
+- Each step must be a concrete, actionable work item
+- Use checkboxes to track progress
 
 ## Expert Review
 

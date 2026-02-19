@@ -1,10 +1,10 @@
 # Workflow
 
-Follow this workflow for every task. The workflow spans two worktrees:
-- **main/** — Issue creation and goal approval (steps 1-3)
-- **work-N/** — Implementation and delivery (steps 4-12)
+Follow this workflow for every task. Three phases, each with a purpose and a gate.
 
-## Phase 1: Issue (main/ worktree)
+## Phase 1: Goal (main/ worktree)
+
+**Purpose:** Define user value — what Benefit to deliver and how to verify it.
 
 1. **Hearing**
    - Gather requirements from the developer
@@ -18,31 +18,45 @@ Follow this workflow for every task. The workflow spans two worktrees:
 3. **Gate 1 — Goal**
    - Developer reviews the issue on GitHub
    - `/fb` to address feedback comments on the issue
-   - `/ty` to approve: is the issue capturing the right problem and goal?
+   - `/ty` to approve
+   - **The developer asks:** Do Benefit and SC capture the right user value?
+   - **Relevant:** Situation, Pain, Benefit, SC — are the facts accurate, the problem real, and the measure of success right?
+   - **Irrelevant:** Implementation details, current architecture, technical feasibility
 
-## Phase 2: Implementation (work-N/ worktree)
+## Phase 2: Approach (work-N/ worktree)
+
+**Purpose:** Design the means to achieve the Success Criteria.
 
 4. **PR description**
    - Draft the PR title (concise, describes purpose)
-   - Draft the PR body with Approach and Tasks (see `pr-format.md`)
-   - Ensure Approach addresses each Pain from the issue
-   - Ensure Tasks are traceable to the Approach
+   - Draft the PR body with Approach table and Steps (see `pr-format.md`)
+   - Ensure every SC appears in the Approach table
+   - Ensure Steps are grouped by Approach and implement it
    - Create the PR on GitHub with `gh pr create`
 
 5. **Gate 2 — Approach**
    - Developer reviews the PR on GitHub
    - `/fb` to address feedback comments on the PR
-   - `/ty` to approve: can the PR's approach achieve the goal?
+   - `/ty` to approve
+   - **The developer asks:** Can Approach and Steps achieve all SC?
+   - **Relevant:** Does Approach cover all SC? Do Steps implement the Approach? Is this the optimal strategy?
+   - **Irrelevant:** Whether the goal itself is right (already approved at Gate 1)
+
+## Phase 3: Delivery (work-N/ worktree)
+
+**Purpose:** Implement and verify that the goal is achieved.
 
 6. **Implementation**
    - Write code and make commits (split by purpose, one logical change per commit)
    - Push commits to the remote branch
 
 7. **Consistency check**
-   - Verify issue title [goal] matches one of the Benefits
+   - Verify the issue title's [benefit] summarizes the primary Benefit from the body
+   - Verify each Pain arises from the Situation
+   - Verify each Benefit traces from a Pain
    - Verify each Success Criteria maps to a Benefit
-   - Verify PR Approach addresses each Pain
-   - Verify PR Tasks are traceable to the Approach
+   - Verify every SC appears in the PR Approach table
+   - Verify Steps are grouped by Approach and implement it
    - If any section was updated during earlier steps, re-check all sections
    - Fix any inconsistencies found
 
@@ -61,10 +75,13 @@ Follow this workflow for every task. The workflow spans two worktrees:
    - Append the Success Criteria Check table to the PR body (see `pr-format.md`)
    - If any criterion is NG, address it and re-check
 
-10. **Gate 3 — Goal Verification**
+10. **Gate 3 — Verification**
     - Developer reviews the implementation on GitHub
     - `/fb` to address feedback comments on the PR
-    - `/ty` to approve: has the goal been achieved?
+    - `/ty` to approve
+    - **The developer asks:** Are SC met and Benefits realized?
+    - **Relevant:** Are SC met? Are Benefits realized? Does the implementation match the approved Approach?
+    - **Irrelevant:** Whether the approach was optimal (already approved at Gate 2)
 
 11. **Merge**
     - Verify approval: `gh pr view <number> --json reviewDecision` must return `APPROVED`
