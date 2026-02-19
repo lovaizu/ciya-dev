@@ -28,7 +28,7 @@ Use this decision tree:
 2. If `main` → **Gate 1**
 3. Otherwise (any non-main worktree):
    a. Find PR: `gh pr list --head $(git branch --show-current) --json number,title,body,url,reviewDecision`
-   b. If no PR exists → tell the developer: "No PR found. Run `/hi <issue-number>` first."
+   b. If no PR exists → tell the developer: "No PR found. Run `/hi <number>` first."
    c. Check implementation status: `git log origin/main..HEAD --oneline`
       - If no commits or only an empty initial commit → **Gate 2**
       - If implementation commits exist → **Gate 3**
@@ -39,7 +39,7 @@ If the gate cannot be determined, tell the developer which gate could not be ide
 
 The developer approved the issue.
 
-1. Tell the developer: "Issue approved. Run `/hi <issue-number>` in a work-N/ worktree to start implementation."
+1. Tell the developer: "Issue approved. Run `/hi <number>` in a work-N/ worktree to start implementation."
 
 <example>
 Developer: /ty
@@ -72,13 +72,14 @@ The developer confirmed the goal is achieved. Proceed to merge:
 
 1. Verify approval: `gh pr view <number> --json reviewDecision` must return `APPROVED`
 2. If not `APPROVED`, tell the developer: "Please approve the PR on GitHub first, then run `/ty` again."
-3. Squash merge: `gh pr merge <number> --squash --delete-branch`
-4. Clean up work records: delete `resume.md` from the work records directory (`.ciya/issues/nnnnn/`) if it exists, since the issue is now complete and the saved state is no longer needed
-5. Tell the developer: "Merged! This worktree is ready for the next `/hi <issue-number>`."
+3. Squash merge: `gh pr merge <number> --squash`
+4. Detach HEAD and delete the local branch: `git checkout --detach && git branch -D <branch-name>`
+5. Clean up work records: delete `resume.md` from the work records directory (`.ciya/issues/nnnnn/`) if it exists, since the issue is now complete and the saved state is no longer needed
+6. Tell the developer: "Merged! This worktree is ready for the next `/hi <number>`."
 
 <example>
 Developer: /ty
 Agent: Gate 3 — Goal verification approved.
        PR #43 is approved. Merging...
-       Merged! This worktree is ready for the next `/hi <issue-number>`.
+       Merged! This worktree is ready for the next `/hi <number>`.
 </example>

@@ -41,7 +41,7 @@ flowchart TD
 - **Success Criteria** — Verifiable conditions that prove Benefit is achieved
 
 **PR (how):**
-- **Approach** — SC-to-means mapping table: why this method was chosen for each SC
+- **Approach** — SC-to-means mapping table: what means will achieve each SC
 - **Steps** — Concrete work steps to implement each Approach, grouped by Approach
 
 Issue-side rules:

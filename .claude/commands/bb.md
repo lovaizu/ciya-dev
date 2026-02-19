@@ -70,4 +70,4 @@ Step 6: Implementation (Gate 2 passed, implementing tasks)
 
 10. Tell the developer:
     - "Work state saved to `.ciya/issues/<5-digit-number>/resume.md`"
-    - "Resume anytime with `/hi <issue-number>` in any work-N/ worktree"
+    - "Resume anytime with `/hi <number>` in any work-N/ worktree"

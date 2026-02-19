@@ -86,10 +86,11 @@ Follow this workflow for every task. Three phases, each with a purpose and a gat
 11. **Merge**
     - Verify approval: `gh pr view <number> --json reviewDecision` must return `APPROVED`
     - If not `APPROVED`, ask the developer to approve the PR on GitHub first
-    - Squash-merge: `gh pr merge <number> --squash --delete-branch`
+    - Squash-merge: `gh pr merge <number> --squash`
+    - Detach HEAD and delete local branch: `git checkout --detach && git branch -D <branch-name>`
 
 12. **Done**
-    - The work-N/ worktree is ready for the next `/hi <issue-number>`
+    - The work-N/ worktree is ready for the next `/hi <number>`
 
 ## Gate Rejection
 
@@ -99,4 +100,4 @@ If the developer provides feedback instead of approving a gate, use `/fb` to add
 
 At any point during the workflow, the developer can run `/bb` to:
 - Save current state to `.ciya/issues/nnnnn/resume.md`
-- Resume later with `/hi <issue-number>` in any work-N/ worktree
+- Resume later with `/hi <number>` in any work-N/ worktree

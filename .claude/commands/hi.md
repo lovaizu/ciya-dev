@@ -9,7 +9,7 @@ Show this to the developer:
 ```
 /hi                 In main/: start hearing → create issue
                     In work-N/: show status and available issues
-/hi <issue-number>  In work-N/: start or resume work on the specified issue
+/hi <number>        In work-N/: start or resume work (accepts issue or PR number)
 ```
 
 ## Detect context
@@ -45,15 +45,20 @@ Agent: Created issue #42: https://github.com/.../issues/42
 
 Tell the developer: "Switch to a work-N/ worktree to start implementation. Run `/hi $ARGUMENTS` there."
 
-## In work-N/ worktree with `$ARGUMENTS` (issue number)
+## In work-N/ worktree with `$ARGUMENTS` (issue or PR number)
 
 Start or resume work on the specified issue:
 
-1. Fetch the issue: `gh issue view $ARGUMENTS --json number,title,url,body,state`
-2. If the issue does not exist or `gh` returns an error, tell the developer and suggest checking the number or `gh` auth
-3. If the issue is closed, tell the developer and ask if they want to reopen or work on a different issue
-4. Check for work records: `.ciya/issues/` + zero-padded 5-digit issue number (e.g., `.ciya/issues/00029/`)
-5. Check if a PR already exists for this issue: search PR bodies for "Closes #NNN" with `gh pr list --json number,title,url,headRefName,body`
+1. **Resolve to issue number:** The developer may pass an issue number or a PR number. Resolve it:
+   - Run `gh pr view $ARGUMENTS --json number,body` (suppress errors)
+   - If it succeeds → `$ARGUMENTS` is a PR number. Extract the issue number from "Closes #N" in the body.
+     - If "Closes #N" is not found, tell the developer: "PR #N has no linked issue (missing 'Closes #N' in body)." and stop.
+   - If it fails → `$ARGUMENTS` is an issue number. Use it as-is.
+2. Fetch the issue: `gh issue view <issue-number> --json number,title,url,body,state`
+3. If the issue does not exist or `gh` returns an error, tell the developer and suggest checking the number or `gh` auth
+4. If the issue is closed, tell the developer and ask if they want to reopen or work on a different issue
+5. Check for work records: `.ciya/issues/` + zero-padded 5-digit issue number (e.g., `.ciya/issues/00029/`)
+6. Check if a PR already exists for this issue: search PR bodies for "Closes #NNN" with `gh pr list --json number,title,url,headRefName,body`
 
 ### If resuming (work records exist or PR exists)
 
@@ -95,4 +100,4 @@ Agent: Found Issue #42: "As a user, I want dark mode..."
 
 1. Show the current branch and any associated issue/PR
 2. List recent open issues: `gh issue list --limit 5`
-3. Tell the developer: "Run `/hi <issue-number>` to start or resume work on an issue"
+3. Tell the developer: "Run `/hi <number>` to start or resume work (accepts issue or PR number)"
