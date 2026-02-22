@@ -8,10 +8,10 @@ set -euo pipefail
 #   ./up.sh <n>    Create/adjust to n work worktrees + start tmux
 #   ./up.sh        Resume with previous configuration
 #
-# Prerequisites: claude, git, tmux, gh
+# Prerequisites are installed by wc.sh (bootstrap).
 
 # Allow tests to override these variables before sourcing
-if [ -z "${REPO_ROOT:-}" ]; then
+if [ -z "${REPO_ROOT:-}" ]; then  # LCOV_EXCL_START — auto-detect for direct execution only
   SCRIPT_DIR="$(cd "$(dirname "$(readlink -f "$0")")" && pwd)"
   REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 
@@ -20,7 +20,7 @@ if [ -z "${REPO_ROOT:-}" ]; then
     echo "Error: $REPO_ROOT does not look like a ciya-dev repo root" >&2
     exit 1
   fi
-fi
+fi  # LCOV_EXCL_STOP
 
 CONFIG_FILE="${CONFIG_FILE:-$REPO_ROOT/.up_config}"
 SESSION_NAME="${SESSION_NAME:-ciya}"
@@ -41,20 +41,6 @@ Examples:
   up.sh 2      Remove work-3 through work-6 (if clean)
   up.sh        Resume previous session
 USAGE
-}
-
-check_prerequisites() {
-  local missing=()
-  for cmd in claude git tmux gh; do
-    if ! command -v "$cmd" >/dev/null 2>&1; then
-      missing+=("$cmd")
-    fi
-  done
-  if [ ${#missing[@]} -gt 0 ]; then
-    echo "Error: missing required commands: ${missing[*]}" >&2
-    echo "Install them before running up.sh." >&2
-    exit 1
-  fi
 }
 
 check_env() {
@@ -150,6 +136,7 @@ remove_excess_worktrees() {
   done
 }
 
+# LCOV_EXCL_START — requires interactive tmux session; see manual tests in up_test.sh
 launch_tmux() {
   local count="$1"
   local total=$((count + 1))
@@ -225,7 +212,7 @@ launch_tmux() {
   tmux select-pane -t "${pids[0]}"
 
   exec tmux attach -t "$SESSION_NAME"
-}
+}  # LCOV_EXCL_STOP
 
 # --- Main (only when executed directly, not sourced) ---
 
@@ -235,7 +222,6 @@ main() {
     exit 0
   fi
 
-  check_prerequisites
   check_env
   load_env
 
@@ -254,6 +240,6 @@ main() {
   launch_tmux "$count"
 }
 
-if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then
+if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then  # LCOV_EXCL_START
   main "$@"
-fi
+fi  # LCOV_EXCL_STOP

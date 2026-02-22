@@ -8,8 +8,8 @@ CWD="$REPO_ROOT"
 
 export CIYA_ALLOWED_DOMAINS_FILE="$SCRIPT_DIR/allowed-domains.txt"
 
-pass=0
-fail=0
+passed=0
+failed=0
 
 run_hook() {
   local json="$1"
@@ -37,11 +37,11 @@ assert_decision() {
 
   if [[ "$actual" == "$expected" ]]; then
     echo "  PASS: $test_name"
-    pass=$((pass + 1))
+    passed=$((passed + 1))
   else
     echo "  FAIL: $test_name (expected=$expected, actual=$actual)"
     [[ -n "$output" ]] && echo "        output: $output"
-    fail=$((fail + 1))
+    failed=$((failed + 1))
   fi
 }
 
@@ -154,13 +154,13 @@ echo "=== Path checks: traversal normalization ==="
 # ============================================================
 
 assert_decision "Read: ../ traversal from repo to /etc" "deny" \
-  "$(mk_json Read "{\"file_path\": \"$REPO_ROOT/scripts/../../../etc/passwd\"}")"
+  "$(mk_json Read "{\"file_path\": \"$REPO_ROOT/setup/../../../etc/passwd\"}")"
 
 assert_decision "Read: relative ../ traversal" "deny" \
   "$(mk_json Read '{"file_path": "../../../etc/passwd"}')"
 
 assert_decision "Read: ../ that stays inside repo" "allow" \
-  "$(mk_json Read "{\"file_path\": \"$REPO_ROOT/scripts/../CLAUDE.md\"}")"
+  "$(mk_json Read "{\"file_path\": \"$REPO_ROOT/setup/../CLAUDE.md\"}")"
 
 assert_decision "Read: multiple ../ at boundary" "deny" \
   "$(mk_json Read "{\"file_path\": \"$REPO_ROOT/../../../../etc/shadow\"}")"
@@ -247,6 +247,9 @@ CIYA_ALLOWED_DOMAINS_FILE="" assert_decision "WebFetch: CIYA_ALLOWED_DOMAINS_FIL
 
 CIYA_ALLOWED_DOMAINS_FILE="" assert_decision "Bash curl: CIYA_ALLOWED_DOMAINS_FILE unset" "deny" \
   "$(mk_json Bash '{"command": "curl https://api.anthropic.com", "description": "test"}')"
+
+CIYA_ALLOWED_DOMAINS_FILE="/nonexistent/path/domains.txt" assert_decision "WebFetch: CIYA_ALLOWED_DOMAINS_FILE file missing" "deny" \
+  "$(mk_json WebFetch '{"url": "https://api.anthropic.com/v1", "prompt": "test"}')"
 
 # ============================================================
 echo "=== Bash destructive: disk operations ==="
@@ -399,7 +402,7 @@ assert_decision "Bash: cat file inside repo" "allow" \
   "$(mk_json Bash "{\"command\": \"cat $REPO_ROOT/CLAUDE.md\", \"description\": \"test\"}")"
 
 assert_decision "Bash: bash script inside repo" "allow" \
-  "$(mk_json Bash "{\"command\": \"bash $REPO_ROOT/scripts/up_test.sh\", \"description\": \"test\"}")"
+  "$(mk_json Bash "{\"command\": \"bash $REPO_ROOT/setup/up_test.sh\", \"description\": \"test\"}")"
 
 # ============================================================
 echo "=== Bash paths: allow TMPDIR ==="
@@ -596,5 +599,5 @@ assert_decision "gh issue edit with destructive text in body" "allow" \
 
 # ============================================================
 echo ""
-echo "=== Results: $pass passed, $fail failed ==="
-[[ $fail -eq 0 ]] && echo "All tests passed!" || exit 1
+echo "=== Results: $passed passed, $failed failed ==="
+[[ $failed -eq 0 ]] && echo "All tests passed!" || exit 1

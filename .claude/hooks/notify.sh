@@ -54,6 +54,7 @@ truncate_message() {
 }
 
 # Send Windows toast notification via PowerShell
+# LCOV_EXCL_START - requires WSL + PowerShell; see manual tests in notify_test.sh
 send_notification() {
   local title="$1"
   local message="$2"
@@ -82,7 +83,7 @@ send_notification() {
 \$AppId = 'Microsoft.WindowsTerminal_8wekyb3d8bbwe!App'
 [Windows.UI.Notifications.ToastNotificationManager,Windows.UI.Notifications,ContentType=WindowsRuntime]::CreateToastNotifier(\$AppId).Show(\$XmlDocument)
 " 2>/dev/null || true
-}
+}  # LCOV_EXCL_STOP
 
 notify_main() {
   local input
@@ -119,6 +120,6 @@ notify_main() {
   send_notification "$title" "$body"
 }
 
-if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then
+if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then  # LCOV_EXCL_START
   notify_main
-fi
+fi  # LCOV_EXCL_STOP

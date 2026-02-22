@@ -1,0 +1,57 @@
+name: Shell Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure git identity
+        run: |
+          git config --global user.name "CI"
+          git config --global user.email "ci@localhost"
+
+      - name: Install kcov
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y binutils-dev build-essential cmake \
+            libcurl4-openssl-dev libdw-dev libelf-dev libiberty-dev zlib1g-dev
+          git clone --depth 1 https://github.com/SimonKagstrom/kcov.git /tmp/kcov
+          cmake -S /tmp/kcov -B /tmp/kcov/build
+          make -C /tmp/kcov/build -j"$(nproc)"
+          sudo make -C /tmp/kcov/build install
+
+      - name: Run tests with coverage
+        run: |
+          for f in setup/*_test.sh .claude/hooks/*_test.sh; do
+            [ -f "$f" ] || continue
+            dir="$(cd "$(dirname "$f")" && pwd)"
+            kcov --include-path="$dir" --exclude-pattern=_test.sh \
+                 --bash-parse-files-in-dirs="$dir" \
+                 --bash-dont-parse-binary-dir \
+                 ./coverage "./$f"
+          done
+
+      - name: Verify coverage
+        run: |
+          coverage_json="./coverage/kcov-merged/coverage.json"
+          if [ ! -f "$coverage_json" ]; then
+            echo "Error: coverage report not found" >&2
+            exit 1
+          fi
+          # Print per-file details
+          jq -r '.files[] | "\(.file | split("/") | .[-1]): \(.percent_covered)% (\(.covered_lines)/\(.total_lines))"' "$coverage_json"
+          percent=$(jq -r '.percent_covered' "$coverage_json")
+          echo "Overall: ${percent}%"
+          if echo "$percent" | awk '{exit ($1 >= 100.0 ? 0 : 1)}'; then
+            echo "Coverage OK"
+          else
+            echo "Error: coverage is ${percent}%, expected 100%" >&2
+            exit 1
+          fi
