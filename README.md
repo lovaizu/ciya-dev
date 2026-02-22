@@ -136,6 +136,14 @@ flowchart TD
 - You interact through four commands (`/hi`, `/ty`, `/fb`, `/bb`) and review comments on GitHub — nothing else
 - At any point, `/bb` saves progress for later resumption
 
+## Prerequisites
+
+- **OS:** WSL2 (Ubuntu) on Windows
+- **Shell:** Bash
+- **Tools:** The setup script (`wc.sh`) automatically installs: git, tmux, gh, claude, kcov
+
+Other environments (native Linux, macOS, Git Bash on Windows) are not currently supported.
+
 ## Usage
 
 ### First-time setup
