@@ -70,7 +70,7 @@ fake_remote="$tmp/ciya-dev.git"
 git clone -q --bare "$staging" "$fake_remote"
 
 # Helper: run wc.sh main() in a subshell with env var override.
-# Stubs check_prerequisites and ensure_kcov for integration tests.
+# Stubs ensure_* functions for integration tests.
 run_wc() {
   local workdir="$1"
   local repo_url="${2:-$fake_remote}"
@@ -78,7 +78,10 @@ run_wc() {
     cd "$workdir"
     export CIYA_REPO_URL="$repo_url"
     source "$WC_SH"
-    check_prerequisites() { :; }
+    ensure_git() { :; }
+    ensure_tmux() { :; }
+    ensure_gh() { :; }
+    ensure_claude() { :; }
     ensure_kcov() { :; }
     main
   )
@@ -140,52 +143,129 @@ CIYA_REPO_URL="$bad_remote" bash "$WC_SH" 2>/dev/null || true
 # Then: ciya-dev-bad/ is cleaned up by trap
 assert_eq "directory removed by trap" "false" "$([ -d "$workdir/ciya-dev-bad" ] && echo true || echo false)"
 
-# ── check_prerequisites ──────────────────────────────────────
-echo "check_prerequisites:"
+# ── ensure_git ────────────────────────────────────────────────
+echo "ensure_git:"
 
-# Given: a PATH with all required commands
-fake_bin="$tmp/fake_bin_all"
-mkdir -p "$fake_bin"
-for cmd in git tmux gh claude; do
-  printf '#!/bin/sh\ntrue\n' > "$fake_bin/$cmd"
-  chmod +x "$fake_bin/$cmd"
-done
+# Given: git is already installed
+fake_bin_git="$tmp/fake_bin_git"
+mkdir -p "$fake_bin_git"
+printf '#!/bin/sh\ntrue\n' > "$fake_bin_git/git"
+chmod +x "$fake_bin_git/git"
 (
   source "$WC_SH"
-  PATH="$fake_bin"
-  check_prerequisites
+  PATH="$fake_bin_git"
+  ensure_git
 )
-assert_eq "all prerequisites present" "0" "$?"
+assert_eq "skips when git installed" "0" "$?"
 
-# Given: a PATH where gh is missing
-fake_bin_no_gh="$tmp/fake_bin_no_gh"
-mkdir -p "$fake_bin_no_gh"
-for cmd in git tmux claude; do
-  printf '#!/bin/sh\ntrue\n' > "$fake_bin_no_gh/$cmd"
-  chmod +x "$fake_bin_no_gh/$cmd"
-done
-actual_exit=0
-(
-  source "$WC_SH"
-  PATH="$fake_bin_no_gh"
-  check_prerequisites
-) 2>/dev/null || actual_exit=$?
-assert_eq "missing command detected" "1" "$actual_exit"
-
-# Given: tmux and gh missing
-fake_bin_partial="$tmp/fake_bin_partial"
-mkdir -p "$fake_bin_partial"
-for cmd in git claude; do
-  printf '#!/bin/sh\ntrue\n' > "$fake_bin_partial/$cmd"
-  chmod +x "$fake_bin_partial/$cmd"
-done
+# Given: git is NOT installed
+fake_bin_no_git="$tmp/fake_bin_no_git"
+mkdir -p "$fake_bin_no_git"
+printf '#!/bin/sh\ntrue\n' > "$fake_bin_no_git/sudo"
+chmod +x "$fake_bin_no_git/sudo"
 output="$(
   source "$WC_SH"
-  PATH="$fake_bin_partial"
-  check_prerequisites 2>&1
-)" || true
-assert_contains "error lists tmux" "tmux" "$output"
-assert_contains "error lists gh" "gh" "$output"
+  PATH="$fake_bin_no_git"
+  ensure_git 2>&1
+)"
+assert_contains "installs git when missing" "git not found" "$output"
+
+# ── ensure_tmux ───────────────────────────────────────────────
+echo "ensure_tmux:"
+
+# Given: tmux is already installed
+fake_bin_tmux="$tmp/fake_bin_tmux"
+mkdir -p "$fake_bin_tmux"
+printf '#!/bin/sh\ntrue\n' > "$fake_bin_tmux/tmux"
+chmod +x "$fake_bin_tmux/tmux"
+(
+  source "$WC_SH"
+  PATH="$fake_bin_tmux"
+  ensure_tmux
+)
+assert_eq "skips when tmux installed" "0" "$?"
+
+# Given: tmux is NOT installed
+fake_bin_no_tmux="$tmp/fake_bin_no_tmux"
+mkdir -p "$fake_bin_no_tmux"
+printf '#!/bin/sh\ntrue\n' > "$fake_bin_no_tmux/sudo"
+chmod +x "$fake_bin_no_tmux/sudo"
+output="$(
+  source "$WC_SH"
+  PATH="$fake_bin_no_tmux"
+  ensure_tmux 2>&1
+)"
+assert_contains "installs tmux when missing" "tmux not found" "$output"
+
+# ── ensure_gh ─────────────────────────────────────────────────
+echo "ensure_gh:"
+
+# Given: gh is already installed
+fake_bin_gh="$tmp/fake_bin_gh"
+mkdir -p "$fake_bin_gh"
+printf '#!/bin/sh\ntrue\n' > "$fake_bin_gh/gh"
+chmod +x "$fake_bin_gh/gh"
+(
+  source "$WC_SH"
+  PATH="$fake_bin_gh"
+  ensure_gh
+)
+assert_eq "skips when gh installed" "0" "$?"
+
+# Given: gh is NOT installed
+fake_bin_no_gh="$tmp/fake_bin_no_gh_ensure"
+mkdir -p "$fake_bin_no_gh"
+# Mock sudo: consume stdin when called with tee to avoid SIGPIPE
+cat > "$fake_bin_no_gh/sudo" << 'MOCKEOF'
+#!/bin/bash
+if [[ "$1" == "tee" ]]; then
+  while IFS= read -r _; do :; done
+fi
+exit 0
+MOCKEOF
+printf '#!/bin/sh\ntrue\n' > "$fake_bin_no_gh/curl"
+printf '#!/bin/sh\necho "amd64"\n' > "$fake_bin_no_gh/dpkg"
+gh_keyring_tmp="$tmp/gh_keyring_tmp"
+touch "$gh_keyring_tmp"
+cat > "$fake_bin_no_gh/mktemp" << MOCKEOF
+#!/bin/sh
+echo "$gh_keyring_tmp"
+MOCKEOF
+chmod +x "$fake_bin_no_gh/sudo" "$fake_bin_no_gh/curl" "$fake_bin_no_gh/dpkg" "$fake_bin_no_gh/mktemp"
+output="$(
+  source "$WC_SH"
+  PATH="$fake_bin_no_gh"
+  ensure_gh 2>&1
+)"
+assert_contains "installs gh when missing" "gh not found" "$output"
+
+# ── ensure_claude ─────────────────────────────────────────────
+echo "ensure_claude:"
+
+# Given: claude is already installed
+fake_bin_claude="$tmp/fake_bin_claude"
+mkdir -p "$fake_bin_claude"
+printf '#!/bin/sh\ntrue\n' > "$fake_bin_claude/claude"
+chmod +x "$fake_bin_claude/claude"
+(
+  source "$WC_SH"
+  PATH="$fake_bin_claude"
+  ensure_claude
+)
+assert_eq "skips when claude installed" "0" "$?"
+
+# Given: claude is NOT installed
+fake_bin_no_claude="$tmp/fake_bin_no_claude"
+mkdir -p "$fake_bin_no_claude"
+printf '#!/bin/sh\ntrue\n' > "$fake_bin_no_claude/curl"
+printf '#!/bin/sh\ntrue\n' > "$fake_bin_no_claude/sh"
+chmod +x "$fake_bin_no_claude/curl" "$fake_bin_no_claude/sh"
+output="$(
+  source "$WC_SH"
+  PATH="$fake_bin_no_claude"
+  ensure_claude 2>&1
+)"
+assert_contains "installs claude when missing" "claude not found" "$output"
 
 # ── ensure_kcov ───────────────────────────────────────────────
 echo "ensure_kcov:"
