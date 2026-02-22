@@ -10,7 +10,7 @@ Any introduction of a new external tool, library, framework, or runtime that is 
 2. **Compare alternatives**: Evaluate at least 2 options (including "do nothing" / "use existing tools")
 3. **Document the comparison**: Create a table with pros, cons, and fit for this project
 4. **Get developer approval**: Present the comparison and recommendation; wait for approval before adopting
-5. **Update setup**: If approved, add the tool to the setup script (`scripts/up.sh` or equivalent) so all worktrees get it automatically
+5. **Update setup**: If approved, add the tool to the setup script (`setup/wc.sh`) so all worktrees get it automatically
 
 ## Evaluation Criteria
 

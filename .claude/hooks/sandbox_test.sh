@@ -154,13 +154,13 @@ echo "=== Path checks: traversal normalization ==="
 # ============================================================
 
 assert_decision "Read: ../ traversal from repo to /etc" "deny" \
-  "$(mk_json Read "{\"file_path\": \"$REPO_ROOT/scripts/../../../etc/passwd\"}")"
+  "$(mk_json Read "{\"file_path\": \"$REPO_ROOT/setup/../../../etc/passwd\"}")"
 
 assert_decision "Read: relative ../ traversal" "deny" \
   "$(mk_json Read '{"file_path": "../../../etc/passwd"}')"
 
 assert_decision "Read: ../ that stays inside repo" "allow" \
-  "$(mk_json Read "{\"file_path\": \"$REPO_ROOT/scripts/../CLAUDE.md\"}")"
+  "$(mk_json Read "{\"file_path\": \"$REPO_ROOT/setup/../CLAUDE.md\"}")"
 
 assert_decision "Read: multiple ../ at boundary" "deny" \
   "$(mk_json Read "{\"file_path\": \"$REPO_ROOT/../../../../etc/shadow\"}")"
@@ -399,7 +399,7 @@ assert_decision "Bash: cat file inside repo" "allow" \
   "$(mk_json Bash "{\"command\": \"cat $REPO_ROOT/CLAUDE.md\", \"description\": \"test\"}")"
 
 assert_decision "Bash: bash script inside repo" "allow" \
-  "$(mk_json Bash "{\"command\": \"bash $REPO_ROOT/scripts/up_test.sh\", \"description\": \"test\"}")"
+  "$(mk_json Bash "{\"command\": \"bash $REPO_ROOT/setup/up_test.sh\", \"description\": \"test\"}")"
 
 # ============================================================
 echo "=== Bash paths: allow TMPDIR ==="
