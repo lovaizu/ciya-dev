@@ -1,0 +1,45 @@
+name: Shell Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install kcov
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y kcov
+
+      - name: Run tests with coverage
+        run: |
+          for f in setup/*_test.sh .claude/hooks/*_test.sh; do
+            [ -f "$f" ] || continue
+            dir="$(cd "$(dirname "$f")" && pwd)"
+            kcov --include-path="$dir" --exclude-pattern=_test.sh \
+                 --bash-parse-files-in-dirs="$dir" \
+                 --bash-dont-parse-binary-dir \
+                 ./coverage "./$f"
+          done
+
+      - name: Verify 100% coverage
+        run: |
+          coverage_json="./coverage/kcov-merged/coverage.json"
+          if [ ! -f "$coverage_json" ]; then
+            echo "Error: coverage report not found" >&2
+            exit 1
+          fi
+          percent=$(jq -r '.percent_covered' "$coverage_json")
+          echo "Coverage: ${percent}%"
+          if echo "$percent" | awk '{exit ($1 >= 100.0 ? 0 : 1)}'; then
+            echo "Coverage OK"
+          else
+            echo "Error: coverage is ${percent}%, expected 100%" >&2
+            exit 1
+          fi
