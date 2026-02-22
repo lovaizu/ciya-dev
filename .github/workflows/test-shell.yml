@@ -29,18 +29,12 @@ jobs:
 
       - name: Run tests with coverage
         run: |
-          # Exclude patterns for lines kcov cannot track:
-          # eval/jq subprocess execution, pipe+while subshells
-          KCOV_EXCLUDE="@sh,hookSpecificOutput,hookEventName,permissionDecision"
-          KCOV_EXCLUDE="$KCOV_EXCLUDE,jq -n,eval \"\$(,done <"
-          KCOV_EXCLUDE="$KCOV_EXCLUDE,grep -oP,extract_domain_from_url,}'"
           for f in setup/*_test.sh .claude/hooks/*_test.sh; do
             [ -f "$f" ] || continue
             dir="$(cd "$(dirname "$f")" && pwd)"
             kcov --include-path="$dir" --exclude-pattern=_test.sh \
                  --bash-parse-files-in-dirs="$dir" \
                  --bash-dont-parse-binary-dir \
-                 --exclude-line="$KCOV_EXCLUDE" \
                  ./coverage "./$f"
           done
 
@@ -55,11 +49,9 @@ jobs:
           jq -r '.files[] | "\(.file | split("/") | .[-1]): \(.percent_covered)% (\(.covered_lines)/\(.total_lines))"' "$coverage_json"
           percent=$(jq -r '.percent_covered' "$coverage_json")
           echo "Overall: ${percent}%"
-          # Threshold 99%: sandbox.sh has 1 unreachable line (return after exit)
-          # that cannot be excluded without modifying the hook-protected file
-          if echo "$percent" | awk '{exit ($1 >= 99.0 ? 0 : 1)}'; then
+          if echo "$percent" | awk '{exit ($1 >= 100.0 ? 0 : 1)}'; then
             echo "Coverage OK"
           else
-            echo "Error: coverage is ${percent}%, expected >= 99%" >&2
+            echo "Error: coverage is ${percent}%, expected 100%" >&2
             exit 1
           fi
