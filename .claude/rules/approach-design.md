@@ -22,14 +22,15 @@ Requires: issue approved at Gate 1.
 
 1. Read the issue's Acceptance Scenarios
 2. For each AS, determine the means to achieve it — consider the simplest approach that satisfies the scenario
-3. Draft the Approach table with every AS mapped to an approach — every AS must appear so all scenarios are covered. Write each approach as a concise action phrase — the same text serves as both a table cell and a Step heading in the PR.
-4. Use each unique Approach from the table as the exact Step heading — if multiple ASs share the same approach, use a single heading to avoid duplication
-5. Break each approach into concrete steps with checkboxes so progress can be tracked during implementation
-6. Create a branch: `git fetch origin && git switch -c <branch-name> origin/main`
-7. Create work records directory: `.aiya/issues/<5-digit-number>/`
-8. Write `design.md` with Problem Summary, Approach, Key Decisions, Open Questions — this captures rationale that would otherwise be lost
-9. Create the PR: `gh pr create`
-10. Report the PR URL to the developer
+3. Draft the Approach table with every AS mapped to an approach — every AS must appear so all scenarios are covered
+4. Write each approach as a concise action phrase — the same text serves as both a table cell and a Step heading in the PR, so phrasing it as an action keeps both locations readable
+5. Use each unique Approach from the table as the exact Step heading — different text between the table and headings breaks traceability and confuses reviewers. If multiple ASs share the same approach, use a single heading to avoid duplication
+6. Break each approach into concrete steps with checkboxes so progress can be tracked during implementation
+7. Create a branch: `git fetch origin && git switch -c <branch-name> origin/main`
+8. Create work records directory: `.aiya/issues/<5-digit-number>/`
+9. Write `design.md` with Problem Summary, Approach, Key Decisions, Open Questions — this captures rationale that would otherwise be lost
+10. Create the PR: `gh pr create`
+11. Report the PR URL to the developer
 
 ## Verify
 

@@ -1,6 +1,6 @@
 ---
 name: skill-smith
-description: Create, improve, evaluate, and profile Claude skills following Anthropic's official Guide. Use when the user wants to "make a skill", "create a skill", "build a skill from scratch", "turn this into a skill", "improve this skill", "make this skill better", "fix my skill", "evaluate my skill", "review this skill", "audit this skill", "check skill quality", "profile this skill", "how fast is this skill", "optimize skill performance", "measure skill cost", "benchmark this skill", or references any skill development workflow. Also use when user uploads a SKILL.md and wants feedback or changes.
+description: Create, improve, evaluate, and profile Claude skills following Anthropic's official Guide. Use when the user wants to "make a skill", "create a skill", "build a skill from scratch", "turn this into a skill", "improve this skill", "make this skill better", "fix my skill", "evaluate my skill", "review this skill", "audit this skill", "check skill quality", "profile this skill", "how fast is this skill", "optimize skill performance", "measure skill cost", "benchmark this skill", or references any skill development workflow. Also use when user uploads a SKILL.md and wants feedback or changes. Do NOT use for running execution-based evals or benchmarks (use skill-creator Eval/Benchmark modes instead).
 ---
 
 # Skill Smith
@@ -381,10 +381,14 @@ For each run (1 to N):
    - **tool_uses**: from the `<usage>` block
    - **files_read**: from the `PROFILE_METRICS` line in the result
    - **errors**: from the `PROFILE_METRICS` line in the result
-   - **cost**: derived as `total_tokens × rate` (use current model pricing)
    - **result_summary**: first 200 characters of the result text
 
 3. Store all metrics in a structured format (one row per step per run)
+
+4. Handle subagent failures — profiling involves external execution, which is the most failure-prone operation:
+   - If a subagent fails or returns no `PROFILE_METRICS` line, retry the step once
+   - If it fails again, record the step as errored (duration=0, tokens=0, errors=1) and continue with remaining steps
+   - Report incomplete runs in the final output so the user knows which data points are missing
 
 ## Step 4: Compute Statistics
 
@@ -426,13 +430,13 @@ Present results in this format:
 
 Test prompt: "{test_prompt}"
 Runs: {N}
-Total (avg): {duration}ms | {tokens} tokens | ${cost} | {tool_calls} tools
+Total (avg): {duration}ms | {tokens} tokens | {tool_calls} tools
 
 ## Per-Step Metrics (averages across {N} runs)
 
-| Step | Duration | % | Tokens | % | Cost | % | Tools | % | Reads | Errors |
-|------|----------|---|--------|---|------|---|-------|---|-------|--------|
-| 1: {title} | {ms} | {%} | {n} | {%} | ${n} | {%} | {n} | {%} | {n} | {n} |
+| Step | Duration | % | Tokens | % | Tools | % | Reads | Errors |
+|------|----------|---|--------|---|-------|---|-------|--------|
+| 1: {title} | {ms} | {%} | {n} | {%} | {n} | {%} | {n} | {n} |
 
 ## Statistics (per step)
 
