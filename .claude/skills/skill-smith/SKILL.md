@@ -381,6 +381,7 @@ For each run (1 to N):
    - **tool_uses**: from the `<usage>` block
    - **files_read**: from the `PROFILE_METRICS` line in the result
    - **errors**: from the `PROFILE_METRICS` line in the result
+   - **cost**: approximate, derived from total_tokens using the current model's per-token rate. Cost is approximate because the Task tool does not expose input/output token split — report the caveat once in the output header.
    - **result_summary**: first 200 characters of the result text
 
 3. Store all metrics in a structured format (one row per step per run)
@@ -430,13 +431,14 @@ Present results in this format:
 
 Test prompt: "{test_prompt}"
 Runs: {N}
-Total (avg): {duration}ms | {tokens} tokens | {tool_calls} tools
+Total (avg): {duration}ms | {tokens} tokens | ~${cost} | {tool_calls} tools
+Note: Cost is approximate (total_tokens × blended rate).
 
 ## Per-Step Metrics (averages across {N} runs)
 
-| Step | Duration | % | Tokens | % | Tools | % | Reads | Errors |
-|------|----------|---|--------|---|-------|---|-------|--------|
-| 1: {title} | {ms} | {%} | {n} | {%} | {n} | {%} | {n} | {n} |
+| Step | Duration | % | Tokens | % | Cost | % | Tools | % | Reads | Errors |
+|------|----------|---|--------|---|------|---|-------|---|-------|--------|
+| 1: {title} | {ms} | {%} | {n} | {%} | ~${n} | {%} | {n} | {%} | {n} | {n} |
 
 ## Statistics (per step)
 
