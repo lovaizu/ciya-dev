@@ -2,24 +2,90 @@
 
 AIYA consists of 22 files (17 rules + 5 commands) spread across `.claude/rules/` and `.claude/commands/`. These files are tightly coupled and reference each other. Developers who want to adopt AIYA must manually copy all files, risk conflicts with existing configurations, and cannot easily update.
 
-## Approach
+## Step 1: Current State Analysis
 
-Consolidate all AIYA content into a single skill directory at `.claude/skills/aiya/`:
+### What AIYA provides
 
-- **SKILL.md**: Core workflow (phases, gates), all 5 commands (/hi, /ok, /bb, /ty, /fb), and essential rules (issue format, PR format, git conventions, work records, etc.)
-- **references/**: Detailed reference material that supports the core workflow but is not needed on every invocation (testing conventions, step design patterns, tool adoption process)
+AIYA is a structured development workflow system for Claude Code. It provides:
 
-The skill system provides natural isolation — skills in `.claude/skills/` don't modify or conflict with `.claude/rules/` or `CLAUDE.md`. Updating means replacing the single skill directory.
+1. **Phased workflow**: Goal → Approach → Delivery with 3 approval gates
+2. **5 commands**: `/hi` (hearing), `/ok` (start/resume), `/bb` (save state), `/ty` (approve), `/fb` (feedback)
+3. **Format specifications**: Issue format (Situation→Pain→Benefit→AS), PR format (Approach table, Steps)
+4. **Verification procedures**: Expert review, scenario evaluation, consistency check
+5. **Convention rules**: Git conventions, testing, step design, work records, tool adoption, agent behavior
+
+### File Inventory
+
+#### Rules (17 files, 782 lines) — `.claude/rules/`
+
+| File | Lines | Purpose | Skill Candidate? |
+|------|-------|---------|-------------------|
+| `workflow.md` | 74 | Core workflow: 3 phases, 3 gates, full progression | Yes — core |
+| `requirements-definition.md` | 53 | Phase 1 procedure: define user value | Yes — core |
+| `approach-design.md` | 48 | Phase 2 procedure: design means to achieve AS | Yes — core |
+| `issue-format.md` | 60 | Issue format specification (Situation, Pain, Benefit, AS) | Yes — core |
+| `pr-format.md` | 61 | PR format specification (Approach, Steps, Expert Review) | Yes — core |
+| `consistency-check.md` | 41 | Cross-artifact traceability verification | Yes — core |
+| `expert-review.md` | 79 | Domain expert review procedure | Yes — core |
+| `scenario-evaluation.md` | 65 | Acceptance scenario verification procedure | Yes — core |
+| `work-records.md` | 21 | Work records directory structure (`.aiya/issues/nnnnn/`) | Yes — core |
+| `git-conventions.md` | 20 | Branch naming, commit format | Yes — core |
+| `step-design.md` | 72 | Rules for writing procedural steps (Generate-Verify-Iterate) | Yes — reference |
+| `agent-behavior.md` | 8 | Agent behavior expectations | Yes — core |
+| `testing.md` | 48 | Common testing rules (Given-When-Then, coverage) | Yes — reference |
+| `testing-shell.md` | 102 | Shell-specific test conventions (kcov, assert_eq) | Yes — reference |
+| `tool-adoption.md` | 20 | Tool evaluation process | Yes — reference |
+| `language.md` | 4 | Documentation language rule (English) | Yes — core |
+| `temporary-files.md` | 6 | Temp file location (`.tmp/`) | Yes — core |
+
+#### Commands (5 files, 350 lines) — `.claude/commands/`
+
+| File | Lines | Purpose | Skill Candidate? |
+|------|-------|---------|-------------------|
+| `hi.md` | 30 | Start hearing → create issue on GitHub | Yes — core |
+| `ok.md` | 72 | Start or resume work on an issue | Yes — core |
+| `bb.md` | 69 | Save work state and prepare to switch | Yes — core |
+| `ty.md` | 84 | Approve current gate and proceed | Yes — core |
+| `fb.md` | 95 | Address review feedback on PRs/issues | Yes — core |
+
+#### Infrastructure (NOT skill candidates)
+
+| File | Lines | Purpose | Why not in skill |
+|------|-------|---------|------------------|
+| `CLAUDE.md` | 9 | Project-specific rules (env var prefix) | Project-specific, varies per adopting repo |
+| `.claude/settings.json` | — | Claude Code hook configuration | Infrastructure config, not workflow content |
+| `.claude/statusline.sh` | 29 | Status line display | Developer tooling, not workflow |
+| `.claude/hooks/sandbox.sh` | ~449 | Security enforcement hook | Infrastructure, repo-specific security policy |
+| `.claude/hooks/notify.sh` | — | Notification hook | Infrastructure |
+| `.claude/hooks/allowed-domains.txt` | — | Domain whitelist | Project-specific security config |
+| `.claude/hooks/*_test.sh` | — | Hook tests | Infrastructure tests |
+| `.claude/statusline_test.sh` | — | Status line tests | Infrastructure tests |
+| `.claude/skills/skill-smith/` | — | Skill creation/evaluation tool | Separate skill, not AIYA workflow |
+| `setup/` (6 files) | — | Bootstrap and worktree management | Infrastructure, specific to aiya-dev repo |
+| `.github/workflows/` | — | CI/CD | Infrastructure |
+| `.aiya/issues/` | — | Work records data | Generated at runtime, not skill content |
+| `.env.example` | — | Environment config template | Infrastructure |
+
+### Categorization Summary
+
+| Category | Files | Lines | Description |
+|----------|-------|-------|-------------|
+| Skill — core | 15 rules + 5 commands | 837 | Needed on every invocation or during specific workflow phases |
+| Skill — reference | 4 rules | 242 | Detailed guides consulted only when relevant |
+| Not in skill | ~15 files | ~500+ | Infrastructure, project-specific config, separate tools |
+
+### Implicit Conventions (not in files)
+
+1. **Workflow orchestration**: The user runs commands in sequence (`/hi` → `/ty` → `/ok` → `/ty` → implementation → `/ty`), but no single file describes this end-to-end user journey
+2. **Work records lifecycle**: `.aiya/issues/nnnnn/` directories are created by `/ok`, updated by `/bb`, read on resume — the lifecycle spans multiple commands but is documented piecemeal
+3. **Gate detection logic**: `/ty` auto-detects which gate based on PR and file state — this logic lives only in `ty.md`
 
 ## Key Decisions
 
-1. **Skill vs. single file**: A skill directory (SKILL.md + references/) rather than a literal single file, because progressive disclosure keeps SKILL.md manageable while preserving all content. The issue's intent is "easy adoption" — one directory to copy is as easy as one file.
-
-2. **What goes in SKILL.md vs. references/**: Core workflow, commands, and formats that are needed on every invocation go in SKILL.md. Detailed conventions (testing, step design) that are consulted only during specific phases go in references/.
-
-3. **Current files remain**: This is additive — the skill is created alongside existing files. Removing the original files is a separate concern (migration for the AIYA repo itself).
+_(To be updated in later steps)_
 
 ## Open Questions
 
-1. Should the skill include project-specific rules currently in CLAUDE.md (e.g., `AIYA_` env var prefix), or should those remain project-specific?
-2. Should testing rules (testing.md, testing-shell.md) be included in the skill, or are they project-specific conventions?
+1. Should testing rules (`testing.md`, `testing-shell.md`) be included in the skill? They define how AIYA enforces code quality but are also reusable conventions. **Preliminary answer**: Include as reference material — they are part of the AIYA workflow (Phase 3: expert review references testing standards).
+2. Should `step-design.md` be included? It defines how AIYA's own rules are written. **Preliminary answer**: Include as reference — it's the meta-pattern behind all AIYA procedures.
+3. Should `tool-adoption.md` be included? **Preliminary answer**: Include as reference — it's consulted when AIYA encounters a new tool during implementation.
