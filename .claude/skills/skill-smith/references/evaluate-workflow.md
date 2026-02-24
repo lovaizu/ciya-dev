@@ -107,3 +107,35 @@ Pattern: [classified pattern]
 | **F** | FAIL in structure or required frontmatter | Skill won't load at all |
 
 After reporting, ask: "Want me to fix the issues? I can switch to Improve mode."
+
+## Example
+
+Input: User says "Is this skill any good?" and provides `.claude/skills/pdf-report/`
+
+Action: Run through Steps 1-7. validate.sh returns 1 FAIL (missing WHEN in description), 2 WARNs. Description triggers 3/5 prompts. Instructions are 65% Executable, 30% Guideline, 5% Vague.
+
+Result:
+```
+Grade: C
+─────────────────
+Passed: 20  |  Failed: 1  |  Warned: 2
+
+Critical issues:
+  D-02 FAIL: Description missing WHEN trigger conditions.
+  Fix: Add trigger phrases like "create a report", "make a PDF from data"
+
+Top 3 improvements:
+  1. Add WHEN section to description (promotes from C to B)
+  2. Rewrite 2 vague instructions as concrete actions
+  3. Add error handling for missing input files
+
+Triggering quality: 3/5 should-trigger, 0/3 false-positive
+Pattern: Sequential Workflow
+```
+
+## Error Handling
+
+If a step cannot complete (e.g., validate.sh not found, skill folder missing):
+1. Report the failure clearly — which step failed and why
+2. Skip to the next step that can proceed — partial evaluation is better than no evaluation
+3. Note the skipped step in the final report so the user knows the grade may be incomplete

@@ -28,6 +28,10 @@ Read the user's request and jump in at the right point:
 
 When unclear, ask the user which they need. When the user gives you a skill and a vague request, default to **Evaluate** first — it reveals what needs work.
 
+After selecting a mode, tell the user which mode you chose and why — the user should understand what will happen before it starts.
+
+For Evaluate, Improve, and Profile: if the user has not provided a skill folder path, ask for it before proceeding — these modes require an existing skill to work on.
+
 ---
 
 # Create
