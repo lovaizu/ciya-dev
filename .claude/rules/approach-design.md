@@ -22,8 +22,8 @@ Requires: issue approved at Gate 1.
 
 1. Read the issue's Acceptance Scenarios
 2. For each AS, determine the means to achieve it — consider the simplest approach that satisfies the scenario
-3. Draft the Approach table with every AS mapped to an approach — every AS must appear so all scenarios are covered
-4. Group unique approaches under Step headings — if multiple ASs share the same approach, use a single heading to avoid duplication
+3. Draft the Approach table with every AS mapped to an approach — every AS must appear so all scenarios are covered. Write each approach as a concise action phrase — the same text serves as both a table cell and a Step heading in the PR.
+4. Use each unique Approach from the table as the exact Step heading — if multiple ASs share the same approach, use a single heading to avoid duplication
 5. Break each approach into concrete steps with checkboxes so progress can be tracked during implementation
 6. Create a branch: `git fetch origin && git switch -c <branch-name> origin/main`
 7. Create work records directory: `.aiya/issues/<5-digit-number>/`
@@ -35,7 +35,7 @@ Requires: issue approved at Gate 1.
 
 1. Every AS from the issue appears in the Approach table
 2. Each Approach describes means (what), not rationale (why) — rationale goes in `design.md`
-3. Steps are grouped by unique Approach
+3. Each Step heading matches an Approach from the table exactly — different text breaks traceability
 4. Each step is concrete and actionable
 5. Steps collectively implement the Approach they belong to
 6. Branch name describes the goal, not the implementation
