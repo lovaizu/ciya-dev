@@ -24,4 +24,4 @@ if [[ -z "$input" ]]; then
   exit 1
 fi
 
-echo "$input" | awk -f "$SCRIPT_DIR/profile_stats.awk" | sort -t$'\t' -k1,1n -k2,2
+printf '%s\n' "$input" | awk -f "$SCRIPT_DIR/profile_stats.awk" | sort -t$'\t' -k1,1n -k2,2
