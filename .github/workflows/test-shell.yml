@@ -29,10 +29,10 @@ jobs:
 
       - name: Run tests with coverage
         run: |
-          for f in setup/*_test.sh .claude/hooks/*_test.sh; do
+          for f in setup/*_test.sh .claude/hooks/*_test.sh .claude/skills/*/scripts/*_test.sh; do
             [ -f "$f" ] || continue
             dir="$(cd "$(dirname "$f")" && pwd)"
-            kcov --include-path="$dir" --exclude-pattern=_test.sh \
+            kcov --include-path="$dir" --exclude-pattern=_test.sh,.awk \
                  --bash-parse-files-in-dirs="$dir" \
                  --bash-dont-parse-binary-dir \
                  ./coverage "./$f"
