@@ -17,71 +17,78 @@ AIYA realizes "Agents in your area" through:
 7. **Parallel work**: Worktree management (setup scripts) for multiple agents working simultaneously
 8. **Monitoring**: Status line for tracking agent context usage
 
+### Concepts
+
+"Agents in your area" is realized through 3 concepts:
+
+1. **Workflow** — Structured development process (Goal → Approach → Delivery) with gates, commands, format specifications, verification procedures, and conventions
+2. **Autonomous operation** — Agents work unattended with safety (sandbox), alerting (notify), and monitoring (statusline)
+3. **Parallel work** — Multiple agents work simultaneously via worktree management
+
 ### Categorization Criteria
 
-Each file is categorized from the **"Agents in your area" perspective**: what does a developer need to have AI agents working effectively in their development environment?
-
-- **Plugin**: Files that realize the "Agents in your area" concept — workflow, autonomous operation, parallel work, monitoring, and quality control
-- **aiya-dev only**: Files needed only for developing the AIYA project itself — not needed by AIYA users
+Each file is categorized by **which concept it serves**. Files that don't belong to any concept are for AIYA development only (aiya-dev).
 
 ### File Inventory
 
-| Path | Lines | Purpose | Category |
-|------|-------|---------|----------|
-| `.claude/rules/workflow.md` | 74 | Core workflow: 3 phases, 3 gates, full progression | Plugin |
-| `.claude/rules/requirements-definition.md` | 53 | Phase 1 procedure: define user value | Plugin |
-| `.claude/rules/approach-design.md` | 48 | Phase 2 procedure: design means to achieve AS | Plugin |
-| `.claude/rules/issue-format.md` | 60 | Issue format specification (Situation, Pain, Benefit, AS) | Plugin |
-| `.claude/rules/pr-format.md` | 61 | PR format specification (Approach, Steps) | Plugin |
-| `.claude/rules/consistency-check.md` | 41 | Cross-artifact traceability verification | Plugin |
-| `.claude/rules/expert-review.md` | 79 | Domain expert review procedure | Plugin |
-| `.claude/rules/scenario-evaluation.md` | 65 | Acceptance scenario verification procedure | Plugin |
-| `.claude/rules/work-records.md` | 21 | Work records directory structure | Plugin |
-| `.claude/rules/git-conventions.md` | 20 | Branch naming, commit format | Plugin |
-| `.claude/rules/step-design.md` | 72 | Rules for writing procedural steps | Plugin |
-| `.claude/rules/agent-behavior.md` | 8 | Agent behavior expectations | Plugin |
-| `.claude/rules/testing.md` | 48 | Common testing rules (Given-When-Then, coverage) | Plugin |
-| `.claude/rules/testing-shell.md` | 102 | Shell-specific test conventions (kcov) | Plugin |
-| `.claude/rules/tool-adoption.md` | 20 | Tool evaluation process | Plugin |
-| `.claude/rules/language.md` | 4 | Documentation language rule | Plugin |
-| `.claude/rules/temporary-files.md` | 6 | Temp file location (`.tmp/`) | Plugin |
-| `.claude/commands/hi.md` | 30 | Create issue on GitHub | Plugin |
-| `.claude/commands/ok.md` | 72 | Start or resume work on an issue | Plugin |
-| `.claude/commands/bb.md` | 69 | Save work state and prepare to switch | Plugin |
-| `.claude/commands/ty.md` | 84 | Approve current gate and proceed | Plugin |
-| `.claude/commands/fb.md` | 95 | Address review feedback | Plugin |
-| `.claude/hooks/sandbox.sh` | 448 | Autonomous operation without user confirmation | Plugin |
-| `.claude/hooks/sandbox_test.sh` | 616 | Sandbox hook tests | Plugin |
-| `.claude/hooks/notify.sh` | 125 | Notification when agent completes or needs attention | Plugin |
-| `.claude/hooks/notify_test.sh` | 166 | Notify hook tests | Plugin |
-| `.claude/hooks/allowed-domains.txt` | 13 | Domain whitelist for web access | Plugin |
-| `.claude/statusline.sh` | 29 | Monitor agent context usage | Plugin |
-| `.claude/statusline_test.sh` | 105 | Status line tests | Plugin |
-| `.claude/settings.json` | 44 | Hook and statusline configuration | Plugin |
-| `setup/up.sh` | 245 | Create worktree for parallel agent work | Plugin |
-| `setup/up_test.sh` | 334 | up.sh tests | Plugin |
-| `setup/dn.sh` | 46 | Remove worktree | Plugin |
-| `setup/dn_test.sh` | 140 | dn.sh tests | Plugin |
-| `setup/wc.sh` | 123 | Initialize worktree with configuration | Plugin |
-| `setup/wc_test.sh` | 397 | wc.sh tests | Plugin |
-| `.claude/skills/skill-smith/SKILL.md` | 347 | Skill creation/evaluation tool | aiya-dev only |
-| `.claude/skills/skill-smith/references/checklist.md` | 106 | Skill quality checklist | aiya-dev only |
-| `.claude/skills/skill-smith/references/patterns.md` | 102 | Skill writing patterns | aiya-dev only |
-| `.claude/skills/skill-smith/references/writing-guide.md` | 312 | Skill writing guide | aiya-dev only |
-| `.claude/skills/skill-smith/scripts/validate.sh` | 420 | Skill validation script | aiya-dev only |
-| `.claude/skills/skill-smith/scripts/validate_test.sh` | 239 | Validation script tests | aiya-dev only |
-| `.github/workflows/test-shell.yml` | 57 | CI pipeline for shell tests | aiya-dev only |
-| `CLAUDE.md` | 9 | Project-specific rules (env var prefix) | aiya-dev only |
-| `README.md` | 242 | aiya-dev repository documentation | aiya-dev only |
-| `.env.example` | 34 | Environment config template | aiya-dev only |
-| `.aiya/issues/` | — | Work records data (generated at runtime) | aiya-dev only |
+| Path | Lines | Purpose | Concept |
+|------|-------|---------|---------|
+| `.claude/rules/workflow.md` | 74 | Core workflow: 3 phases, 3 gates, full progression | Workflow |
+| `.claude/rules/requirements-definition.md` | 53 | Phase 1 procedure: define user value | Workflow |
+| `.claude/rules/approach-design.md` | 48 | Phase 2 procedure: design means to achieve AS | Workflow |
+| `.claude/rules/issue-format.md` | 60 | Issue format specification (Situation, Pain, Benefit, AS) | Workflow |
+| `.claude/rules/pr-format.md` | 61 | PR format specification (Approach, Steps) | Workflow |
+| `.claude/rules/consistency-check.md` | 41 | Cross-artifact traceability verification | Workflow |
+| `.claude/rules/expert-review.md` | 79 | Domain expert review procedure | Workflow |
+| `.claude/rules/scenario-evaluation.md` | 65 | Acceptance scenario verification procedure | Workflow |
+| `.claude/rules/work-records.md` | 21 | Work records directory structure | Workflow |
+| `.claude/rules/git-conventions.md` | 20 | Branch naming, commit format | Workflow |
+| `.claude/rules/step-design.md` | 72 | Rules for writing procedural steps | Workflow |
+| `.claude/rules/agent-behavior.md` | 8 | Agent behavior expectations | Workflow |
+| `.claude/rules/testing.md` | 48 | Common testing rules (Given-When-Then, coverage) | Workflow |
+| `.claude/rules/testing-shell.md` | 102 | Shell-specific test conventions (kcov) | Workflow |
+| `.claude/rules/tool-adoption.md` | 20 | Tool evaluation process | Workflow |
+| `.claude/rules/language.md` | 4 | Documentation language rule | Workflow |
+| `.claude/rules/temporary-files.md` | 6 | Temp file location (`.tmp/`) | Workflow |
+| `.claude/commands/hi.md` | 30 | Create issue on GitHub | Workflow |
+| `.claude/commands/ok.md` | 72 | Start or resume work on an issue | Workflow |
+| `.claude/commands/bb.md` | 69 | Save work state and prepare to switch | Workflow |
+| `.claude/commands/ty.md` | 84 | Approve current gate and proceed | Workflow |
+| `.claude/commands/fb.md` | 95 | Address review feedback | Workflow |
+| `.claude/hooks/sandbox.sh` | 448 | Safety hook: auto-approve safe actions | Autonomous operation |
+| `.claude/hooks/sandbox_test.sh` | 616 | Sandbox hook tests | Autonomous operation |
+| `.claude/hooks/notify.sh` | 125 | Alert hook: notify when agent completes or needs attention | Autonomous operation |
+| `.claude/hooks/notify_test.sh` | 166 | Notify hook tests | Autonomous operation |
+| `.claude/hooks/allowed-domains.txt` | 13 | Domain whitelist for sandbox web access | Autonomous operation |
+| `.claude/statusline.sh` | 29 | Monitor agent context usage | Autonomous operation |
+| `.claude/statusline_test.sh` | 105 | Status line tests | Autonomous operation |
+| `.claude/settings.json` | 44 | Hook and statusline configuration | Autonomous operation |
+| `setup/up.sh` | 245 | Create worktree for parallel agent work | Parallel work |
+| `setup/up_test.sh` | 334 | up.sh tests | Parallel work |
+| `setup/dn.sh` | 46 | Remove worktree | Parallel work |
+| `setup/dn_test.sh` | 140 | dn.sh tests | Parallel work |
+| `setup/wc.sh` | 123 | Initialize worktree with configuration | Parallel work |
+| `setup/wc_test.sh` | 397 | wc.sh tests | Parallel work |
+| `.claude/skills/skill-smith/SKILL.md` | 347 | Skill creation/evaluation tool | aiya-dev |
+| `.claude/skills/skill-smith/references/checklist.md` | 106 | Skill quality checklist | aiya-dev |
+| `.claude/skills/skill-smith/references/patterns.md` | 102 | Skill writing patterns | aiya-dev |
+| `.claude/skills/skill-smith/references/writing-guide.md` | 312 | Skill writing guide | aiya-dev |
+| `.claude/skills/skill-smith/scripts/validate.sh` | 420 | Skill validation script | aiya-dev |
+| `.claude/skills/skill-smith/scripts/validate_test.sh` | 239 | Validation script tests | aiya-dev |
+| `.github/workflows/test-shell.yml` | 57 | CI pipeline for shell tests | aiya-dev |
+| `CLAUDE.md` | 9 | Project-specific rules (env var prefix) | aiya-dev |
+| `README.md` | 242 | aiya-dev repository documentation | aiya-dev |
+| `.env.example` | 34 | Environment config template | aiya-dev |
+| `.aiya/issues/` | — | Work records data (generated at runtime) | aiya-dev |
 
 ### Categorization Summary
 
-| Category | Files | Lines | Description |
-|----------|-------|-------|-------------|
-| Plugin | 36 | 3,617 | Realizes "Agents in your area": workflow, autonomous operation, parallel work, monitoring |
-| aiya-dev only | 11 | 1,868 | AIYA development tools, CI, project-specific config, docs |
+| Concept | Files | Lines | What it provides |
+|---------|-------|-------|------------------|
+| Workflow | 22 | 1,957 | Structured development process: phases, gates, commands, formats, verification, conventions |
+| Autonomous operation | 8 | 1,371 | Unattended agent work: safety (sandbox), alerting (notify), monitoring (statusline) |
+| Parallel work | 6 | 1,289 | Multiple agents simultaneously: worktree creation, removal, initialization |
+| aiya-dev | 11 | 1,868 | AIYA project development only: CI, skill-smith, project docs, config |
 
 ### Implicit Conventions (not in files)
 
