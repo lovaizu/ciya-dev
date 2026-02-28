@@ -1,91 +1,87 @@
 ## Problem Summary
 
-AIYA consists of 22 files (17 rules + 5 commands) spread across `.claude/rules/` and `.claude/commands/`. These files are tightly coupled and reference each other. Developers who want to adopt AIYA must manually copy all files, risk conflicts with existing configurations, and cannot easily update.
+AIYA is a development workflow system for Claude Code that realizes the "Agents in your area" concept — AI agents working alongside developers in their environment. Currently, AIYA consists of 45 files spread across `.claude/rules/`, `.claude/commands/`, `.claude/hooks/`, `setup/`, and other directories. Developers who want to adopt AIYA must manually copy and integrate many interdependent files, risk conflicts with existing configurations, and cannot easily update.
 
 ## Step 1: Current State Analysis
 
 ### What AIYA provides
 
-AIYA is a structured development workflow system for Claude Code. It provides:
+AIYA realizes "Agents in your area" through:
 
-1. **Phased workflow**: Goal → Approach → Delivery with 3 approval gates
-2. **5 commands**: `/hi` (hearing), `/ok` (start/resume), `/bb` (save state), `/ty` (approve), `/fb` (feedback)
+1. **Structured workflow**: Goal → Approach → Delivery with 3 approval gates
+2. **5 commands**: `/hi` (create issue), `/ok` (start/resume work), `/bb` (save state), `/ty` (approve gate), `/fb` (address feedback)
 3. **Format specifications**: Issue format (Situation→Pain→Benefit→AS), PR format (Approach table, Steps)
 4. **Verification procedures**: Expert review, scenario evaluation, consistency check
-5. **Convention rules**: Git conventions, testing, step design, work records, tool adoption, agent behavior
+5. **Convention rules**: Git, testing, step design, work records, tool adoption, agent behavior
+6. **Autonomous operation**: Sandbox hook for unattended agent work, notify hook for alerting the developer
+7. **Parallel work**: Worktree management (setup scripts) for multiple agents working simultaneously
+8. **Monitoring**: Status line for tracking agent context usage
 
 ### Categorization Criteria
 
-Each file is categorized from the **AIYA user's perspective**: what does a developer adopting AIYA need?
+Each file is categorized from the **"Agents in your area" perspective**: what does a developer need to have AI agents working effectively in their development environment?
 
-- **Plugin candidate**: Files that define the AIYA workflow system itself — a developer adopting AIYA needs these to use the structured workflow (phases, gates, commands, formats, conventions)
-- **Project-specific / Infrastructure**: Files needed only for developing or operating the aiya-dev repository itself — an AIYA user does not need these (e.g., CI pipelines, security hooks specific to this repo, setup scripts for this repo's worktree structure)
-
-Within plugin candidates, files are further split:
-
-- **Core**: Content the agent needs during standard workflow execution — loaded on every invocation or actively referenced during a specific workflow phase (e.g., `workflow.md` on every invocation, `issue-format.md` during Phase 1)
-- **Reference**: Detailed guides the agent consults only when a specific topic arises during implementation (e.g., `testing-shell.md` only when writing shell tests, `step-design.md` only when authoring procedural rules)
+- **Plugin**: Files that realize the "Agents in your area" concept — workflow, autonomous operation, parallel work, monitoring, and quality control
+- **aiya-dev only**: Files needed only for developing the AIYA project itself — not needed by AIYA users
 
 ### File Inventory
 
-#### Rules (17 files, 782 lines) — `.claude/rules/`
-
-| File | Lines | Purpose | Skill Candidate? |
-|------|-------|---------|-------------------|
-| `workflow.md` | 74 | Core workflow: 3 phases, 3 gates, full progression | Yes — core |
-| `requirements-definition.md` | 53 | Phase 1 procedure: define user value | Yes — core |
-| `approach-design.md` | 48 | Phase 2 procedure: design means to achieve AS | Yes — core |
-| `issue-format.md` | 60 | Issue format specification (Situation, Pain, Benefit, AS) | Yes — core |
-| `pr-format.md` | 61 | PR format specification (Approach, Steps, Expert Review) | Yes — core |
-| `consistency-check.md` | 41 | Cross-artifact traceability verification | Yes — core |
-| `expert-review.md` | 79 | Domain expert review procedure | Yes — core |
-| `scenario-evaluation.md` | 65 | Acceptance scenario verification procedure | Yes — core |
-| `work-records.md` | 21 | Work records directory structure (`.aiya/issues/nnnnn/`) | Yes — core |
-| `git-conventions.md` | 20 | Branch naming, commit format | Yes — core |
-| `step-design.md` | 72 | Rules for writing procedural steps (Generate-Verify-Iterate) | Yes — reference |
-| `agent-behavior.md` | 8 | Agent behavior expectations | Yes — core |
-| `testing.md` | 48 | Common testing rules (Given-When-Then, coverage) | Yes — reference |
-| `testing-shell.md` | 102 | Shell-specific test conventions (kcov, assert_eq) | Yes — reference |
-| `tool-adoption.md` | 20 | Tool evaluation process | Yes — reference |
-| `language.md` | 4 | Documentation language rule (English) | Yes — core |
-| `temporary-files.md` | 6 | Temp file location (`.tmp/`) | Yes — core |
-
-#### Commands (5 files, 350 lines) — `.claude/commands/`
-
-| File | Lines | Purpose | Skill Candidate? |
-|------|-------|---------|-------------------|
-| `hi.md` | 30 | Start hearing → create issue on GitHub | Yes — core |
-| `ok.md` | 72 | Start or resume work on an issue | Yes — core |
-| `bb.md` | 69 | Save work state and prepare to switch | Yes — core |
-| `ty.md` | 84 | Approve current gate and proceed | Yes — core |
-| `fb.md` | 95 | Address review feedback on PRs/issues | Yes — core |
-
-#### Infrastructure (NOT skill candidates)
-
-| File | Lines | Purpose | Why not in skill |
-|------|-------|---------|------------------|
-| `CLAUDE.md` | 9 | Project-specific rules (env var prefix) | Project-specific, varies per adopting repo |
-| `.claude/settings.json` | — | Claude Code hook configuration | Infrastructure config, not workflow content |
-| `.claude/statusline.sh` | 29 | Status line display | Developer tooling, not workflow |
-| `.claude/hooks/sandbox.sh` | ~449 | Security enforcement hook | Infrastructure, repo-specific security policy |
-| `.claude/hooks/notify.sh` | — | Notification hook | Infrastructure |
-| `.claude/hooks/allowed-domains.txt` | — | Domain whitelist | Project-specific security config |
-| `.claude/hooks/*_test.sh` | — | Hook tests | Infrastructure tests |
-| `.claude/statusline_test.sh` | — | Status line tests | Infrastructure tests |
-| `.claude/skills/skill-smith/` | — | Skill creation/evaluation tool | Separate skill, not AIYA workflow |
-| `setup/` (6 files) | — | Bootstrap and worktree management | Infrastructure, specific to aiya-dev repo |
-| `.github/workflows/` | — | CI/CD | Infrastructure |
-| `.aiya/issues/` | — | Work records data | Generated at runtime, not skill content |
-| `.env.example` | — | Environment config template | Infrastructure |
-| `README.md` | — | Project README for aiya-dev repository | Repository documentation, not workflow content |
+| Path | Lines | Purpose | Category |
+|------|-------|---------|----------|
+| `.claude/rules/workflow.md` | 74 | Core workflow: 3 phases, 3 gates, full progression | Plugin |
+| `.claude/rules/requirements-definition.md` | 53 | Phase 1 procedure: define user value | Plugin |
+| `.claude/rules/approach-design.md` | 48 | Phase 2 procedure: design means to achieve AS | Plugin |
+| `.claude/rules/issue-format.md` | 60 | Issue format specification (Situation, Pain, Benefit, AS) | Plugin |
+| `.claude/rules/pr-format.md` | 61 | PR format specification (Approach, Steps) | Plugin |
+| `.claude/rules/consistency-check.md` | 41 | Cross-artifact traceability verification | Plugin |
+| `.claude/rules/expert-review.md` | 79 | Domain expert review procedure | Plugin |
+| `.claude/rules/scenario-evaluation.md` | 65 | Acceptance scenario verification procedure | Plugin |
+| `.claude/rules/work-records.md` | 21 | Work records directory structure | Plugin |
+| `.claude/rules/git-conventions.md` | 20 | Branch naming, commit format | Plugin |
+| `.claude/rules/step-design.md` | 72 | Rules for writing procedural steps | Plugin |
+| `.claude/rules/agent-behavior.md` | 8 | Agent behavior expectations | Plugin |
+| `.claude/rules/testing.md` | 48 | Common testing rules (Given-When-Then, coverage) | Plugin |
+| `.claude/rules/testing-shell.md` | 102 | Shell-specific test conventions (kcov) | Plugin |
+| `.claude/rules/tool-adoption.md` | 20 | Tool evaluation process | Plugin |
+| `.claude/rules/language.md` | 4 | Documentation language rule | Plugin |
+| `.claude/rules/temporary-files.md` | 6 | Temp file location (`.tmp/`) | Plugin |
+| `.claude/commands/hi.md` | 30 | Create issue on GitHub | Plugin |
+| `.claude/commands/ok.md` | 72 | Start or resume work on an issue | Plugin |
+| `.claude/commands/bb.md` | 69 | Save work state and prepare to switch | Plugin |
+| `.claude/commands/ty.md` | 84 | Approve current gate and proceed | Plugin |
+| `.claude/commands/fb.md` | 95 | Address review feedback | Plugin |
+| `.claude/hooks/sandbox.sh` | 448 | Autonomous operation without user confirmation | Plugin |
+| `.claude/hooks/sandbox_test.sh` | 616 | Sandbox hook tests | Plugin |
+| `.claude/hooks/notify.sh` | 125 | Notification when agent completes or needs attention | Plugin |
+| `.claude/hooks/notify_test.sh` | 166 | Notify hook tests | Plugin |
+| `.claude/hooks/allowed-domains.txt` | 13 | Domain whitelist for web access | Plugin |
+| `.claude/statusline.sh` | 29 | Monitor agent context usage | Plugin |
+| `.claude/statusline_test.sh` | 105 | Status line tests | Plugin |
+| `.claude/settings.json` | 44 | Hook and statusline configuration | Plugin |
+| `setup/up.sh` | 245 | Create worktree for parallel agent work | Plugin |
+| `setup/up_test.sh` | 334 | up.sh tests | Plugin |
+| `setup/dn.sh` | 46 | Remove worktree | Plugin |
+| `setup/dn_test.sh` | 140 | dn.sh tests | Plugin |
+| `setup/wc.sh` | 123 | Initialize worktree with configuration | Plugin |
+| `setup/wc_test.sh` | 397 | wc.sh tests | Plugin |
+| `.claude/skills/skill-smith/SKILL.md` | 347 | Skill creation/evaluation tool | aiya-dev only |
+| `.claude/skills/skill-smith/references/checklist.md` | 106 | Skill quality checklist | aiya-dev only |
+| `.claude/skills/skill-smith/references/patterns.md` | 102 | Skill writing patterns | aiya-dev only |
+| `.claude/skills/skill-smith/references/writing-guide.md` | 312 | Skill writing guide | aiya-dev only |
+| `.claude/skills/skill-smith/scripts/validate.sh` | 420 | Skill validation script | aiya-dev only |
+| `.claude/skills/skill-smith/scripts/validate_test.sh` | 239 | Validation script tests | aiya-dev only |
+| `.github/workflows/test-shell.yml` | 57 | CI pipeline for shell tests | aiya-dev only |
+| `CLAUDE.md` | 9 | Project-specific rules (env var prefix) | aiya-dev only |
+| `README.md` | 242 | aiya-dev repository documentation | aiya-dev only |
+| `.env.example` | 34 | Environment config template | aiya-dev only |
+| `.aiya/issues/` | — | Work records data (generated at runtime) | aiya-dev only |
 
 ### Categorization Summary
 
 | Category | Files | Lines | Description |
 |----------|-------|-------|-------------|
-| Skill — core | 15 rules + 5 commands | 837 | Needed on every invocation or during specific workflow phases |
-| Skill — reference | 4 rules | 242 | Detailed guides consulted only when relevant |
-| Not in skill | ~15 files | ~500+ | Infrastructure, project-specific config, separate tools |
+| Plugin | 36 | 3,617 | Realizes "Agents in your area": workflow, autonomous operation, parallel work, monitoring |
+| aiya-dev only | 11 | 1,868 | AIYA development tools, CI, project-specific config, docs |
 
 ### Implicit Conventions (not in files)
 
@@ -95,10 +91,10 @@ Within plugin candidates, files are further split:
 
 ## Key Decisions
 
-_(To be updated in later steps)_
+1. **Plugin over single skill**: CC plugins can contain commands, hooks, skills, and settings as a single distributable unit. A single skill cannot include slash commands or hooks. Plugin is the correct distribution mechanism.
 
 ## Open Questions
 
-1. Should testing rules (`testing.md`, `testing-shell.md`) be included in the skill? They define how AIYA enforces code quality but are also reusable conventions. **Preliminary answer**: Include as reference material — they are part of the AIYA workflow (Phase 3: expert review references testing standards).
-2. Should `step-design.md` be included? It defines how AIYA's own rules are written. **Preliminary answer**: Include as reference — it's the meta-pattern behind all AIYA procedures.
-3. Should `tool-adoption.md` be included? **Preliminary answer**: Include as reference — it's consulted when AIYA encounters a new tool during implementation.
+1. Plugins do not have a `rules/` directory. How should the 17 rule files be incorporated into the plugin structure? Options: embed in commands/skills, use an agent with system prompt, or reference files within skills.
+2. Setup scripts (`up.sh`, `dn.sh`, `wc.sh`) are currently designed for the aiya-dev repo's worktree structure. How should they be generalized for any adopting repository?
+3. `allowed-domains.txt` contains domains specific to AIYA development. Should the plugin include a default set, or should this be user-configurable?
