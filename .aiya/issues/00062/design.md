@@ -14,6 +14,18 @@ AIYA is a structured development workflow system for Claude Code. It provides:
 4. **Verification procedures**: Expert review, scenario evaluation, consistency check
 5. **Convention rules**: Git conventions, testing, step design, work records, tool adoption, agent behavior
 
+### Categorization Criteria
+
+Each file is categorized from the **AIYA user's perspective**: what does a developer adopting AIYA need?
+
+- **Plugin candidate**: Files that define the AIYA workflow system itself — a developer adopting AIYA needs these to use the structured workflow (phases, gates, commands, formats, conventions)
+- **Project-specific / Infrastructure**: Files needed only for developing or operating the aiya-dev repository itself — an AIYA user does not need these (e.g., CI pipelines, security hooks specific to this repo, setup scripts for this repo's worktree structure)
+
+Within plugin candidates, files are further split:
+
+- **Core**: Content the agent needs during standard workflow execution — loaded on every invocation or actively referenced during a specific workflow phase (e.g., `workflow.md` on every invocation, `issue-format.md` during Phase 1)
+- **Reference**: Detailed guides the agent consults only when a specific topic arises during implementation (e.g., `testing-shell.md` only when writing shell tests, `step-design.md` only when authoring procedural rules)
+
 ### File Inventory
 
 #### Rules (17 files, 782 lines) — `.claude/rules/`
@@ -65,6 +77,7 @@ AIYA is a structured development workflow system for Claude Code. It provides:
 | `.github/workflows/` | — | CI/CD | Infrastructure |
 | `.aiya/issues/` | — | Work records data | Generated at runtime, not skill content |
 | `.env.example` | — | Environment config template | Infrastructure |
+| `README.md` | — | Project README for aiya-dev repository | Repository documentation, not workflow content |
 
 ### Categorization Summary
 
