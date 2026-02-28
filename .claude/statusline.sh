@@ -2,8 +2,6 @@
 
 input=$(cat)
 
-# jq filter lines inside eval are not individually instrumentable by kcov
-# LCOV_EXCL_START
 eval "$(echo "$input" | jq -r '
   @sh "dir=\(.workspace.current_dir // "")",
   @sh "display_name=\(.model.display_name // "Unknown")",
@@ -12,7 +10,6 @@ eval "$(echo "$input" | jq -r '
   @sh "cost=\(.cost.total_cost_usd // 0)",
   @sh "ctx=\(.context_window.used_percentage // 0)"
 ')"
-# LCOV_EXCL_STOP
 
 full_dir="$dir"
 dir=$(basename "$dir")
