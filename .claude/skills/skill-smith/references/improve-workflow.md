@@ -76,8 +76,40 @@ If a stubborn issue resists targeted fixes, try a completely different approach 
 
 Run `bash scripts/validate.sh <skill-path>` again. Confirm the grade improved. If new WARNs appeared, review them.
 
-## Step 5: Recommend Testing
+## Step 5: Present Report
 
-After static improvement, recommend runtime testing:
-- "Try these 3 prompts with the improved skill and see if it behaves better"
-- If the user has skill-creator available, suggest Eval mode for systematic testing
+Summarize the improvement work so the user can see what changed, whether it helped, and what to test:
+
+```
+# Improvement Report: {skill name}
+
+## Diagnosis
+
+| # | Problem | Type | Priority |
+|---|---------|------|----------|
+| 1 | {what was found} | {Won't load / Won't trigger / Triggers wrong / Bad output / Inefficient} | {Fix first / second / third / fourth} |
+
+## Changes
+
+| # | File | What Changed |
+|---|------|-------------|
+| 1 | {path} | {before → after summary} |
+
+## Validation
+
+| Metric | Before | After |
+|--------|--------|-------|
+| Grade | {grade} | {grade} |
+| PASS | {n} | {n} |
+| FAIL | {n} | {n} |
+| WARN | {n} | {n} |
+
+## Test Prompts
+
+Try these prompts to verify the improvements:
+1. "{prompt that targets the fixed issue}"
+2. "{prompt that tests a different angle}"
+3. "{prompt that should NOT trigger the skill}"
+```
+
+After presenting, ask: "Want me to evaluate the improved skill? I can switch to Evaluate mode for a full assessment."
