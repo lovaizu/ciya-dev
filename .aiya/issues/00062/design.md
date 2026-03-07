@@ -22,8 +22,8 @@ Each file is categorized by which README concept it primarily serves. Files that
 | `.claude/rules/git-conventions.md` | No babysitting | Convention agents follow without supervision |
 | `.claude/rules/step-design.md` | No babysitting | Convention agents follow without supervision |
 | `.claude/rules/agent-behavior.md` | No babysitting | Convention agents follow without supervision |
-| `.claude/rules/testing.md` | No babysitting | Convention agents follow without supervision |
-| `.claude/rules/testing-shell.md` | No babysitting | Convention agents follow without supervision |
+| `.claude/rules/testing.md` | aiya-dev | Testing convention for AIYA development |
+| `.claude/rules/testing-shell.md` | aiya-dev | Shell testing convention for AIYA development |
 | `.claude/rules/tool-adoption.md` | No babysitting | Convention agents follow without supervision |
 | `.claude/rules/language.md` | No babysitting | Convention agents follow without supervision |
 | `.claude/rules/temporary-files.md` | No babysitting | Convention agents follow without supervision |
@@ -33,19 +33,19 @@ Each file is categorized by which README concept it primarily serves. Files that
 | `.claude/commands/ty.md` | No babysitting | Approves gates in the quality process |
 | `.claude/commands/fb.md` | No babysitting | Addresses feedback in the review process |
 | `.claude/hooks/sandbox.sh` | No babysitting | Auto-approves safe actions without developer |
-| `.claude/hooks/sandbox_test.sh` | No babysitting | Tests for sandbox |
+| `.claude/hooks/sandbox_test.sh` | aiya-dev | Tests for sandbox (AIYA development) |
 | `.claude/hooks/notify.sh` | Scale as one | Alerts developer across parallel instances |
-| `.claude/hooks/notify_test.sh` | Scale as one | Tests for notify |
+| `.claude/hooks/notify_test.sh` | aiya-dev | Tests for notify (AIYA development) |
 | `.claude/hooks/allowed-domains.txt` | No babysitting | Domain whitelist for sandbox auto-approval |
 | `.claude/statusline.sh` | Walk away anytime | Monitors context to decide when to save/resume |
-| `.claude/statusline_test.sh` | Walk away anytime | Tests for statusline |
+| `.claude/statusline_test.sh` | aiya-dev | Tests for statusline (AIYA development) |
 | `.claude/settings.json` | No babysitting | Hook and statusline configuration |
 | `setup/up.sh` | Scale as one | Creates parallel worker instances |
-| `setup/up_test.sh` | Scale as one | Tests for up.sh |
+| `setup/up_test.sh` | aiya-dev | Tests for up.sh (AIYA development) |
 | `setup/dn.sh` | Scale as one | Removes parallel worker instances |
-| `setup/dn_test.sh` | Scale as one | Tests for dn.sh |
+| `setup/dn_test.sh` | aiya-dev | Tests for dn.sh (AIYA development) |
 | `setup/wc.sh` | Scale as one | Initializes worktrees for parallel work |
-| `setup/wc_test.sh` | Scale as one | Tests for wc.sh |
+| `setup/wc_test.sh` | aiya-dev | Tests for wc.sh (AIYA development) |
 | `README.md` | No babysitting, Scale as one, Walk away anytime | Documents all 3 concepts for AIYA users; plugin needs equivalent |
 | `.claude/skills/skill-smith/SKILL.md` | aiya-dev | Skill development tool for AIYA contributors |
 | `.claude/skills/skill-smith/references/checklist.md` | aiya-dev | Skill quality checklist |
@@ -61,9 +61,11 @@ Each file is categorized by which README concept it primarily serves. Files that
 ## Key Decisions
 
 1. **Plugin over single skill**: CC plugins can contain commands, hooks, skills, and settings as a single distributable unit. A single skill cannot include slash commands or hooks. Plugin is the correct distribution mechanism.
+2. **Rules as workflow instructions**: Plugins have no `rules/` directory. Rule content will be embedded as agent instructions in plugin workflows or templates, not as separate rule files. Verification steps enable self-correction. Skill changes follow step-design.md.
+3. **Setup script split**: Setup scripts will be split into plugin parts (reusable) and aiya-dev-only parts (separate script files). Plugin users add project-specific processing in the extracted parts, which serve as extension points.
+4. **allowed-domains.txt as default + extension point**: Current domains distributed as default. Setup displays a message prompting the user to customize. README documents this as an extension point (same pattern as setup scripts).
+5. **Testing rules and test code are aiya-dev only**: Testing conventions (testing.md, testing-shell.md) and test files (*_test.sh) are for AIYA development, not for plugin users.
 
 ## Open Questions
 
-1. Plugins do not have a `rules/` directory. How should the 17 rule files be incorporated into the plugin structure? Options: embed in commands/skills, use an agent with system prompt, or reference files within skills.
-2. Setup scripts (`up.sh`, `dn.sh`, `wc.sh`) are currently designed for the aiya-dev repo's worktree structure. How should they be generalized for any adopting repository?
-3. `allowed-domains.txt` contains domains specific to AIYA development. Should the plugin include a default set, or should this be user-configurable?
+None — all questions resolved.
