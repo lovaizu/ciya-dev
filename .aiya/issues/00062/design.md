@@ -69,3 +69,75 @@ Each file is categorized by which README concept it primarily serves. Files that
 ## Open Questions
 
 None — all questions resolved.
+
+## Step 2: Plugin Requirements
+
+### What the plugin provides (user perspective)
+
+| Concept | What the user gets |
+|---------|-------------------|
+| No babysitting | Structured workflow (3 phases, 3 gates), 5 commands (/aiya:hi, /aiya:ok, /aiya:bb, /aiya:ty, /aiya:fb), automated safety (sandbox), conventions embedded in workflow instructions |
+| Scale as one | Parallel work setup (up.sh, dn.sh, wc.sh), notifications across instances (notify) |
+| Walk away anytime | Save/resume work state (/aiya:ok, /aiya:bb), context monitoring (statusline) |
+
+### Plugin components
+
+| Type | Component | Source | Notes |
+|------|-----------|--------|-------|
+| Skill | hi | `.claude/commands/hi.md` | Embeds requirements-definition.md, issue-format.md |
+| Skill | ok | `.claude/commands/ok.md` | Embeds work-records.md, pr-format.md, approach-design.md, git-conventions.md |
+| Skill | bb | `.claude/commands/bb.md` | Embeds work-records.md, git-conventions.md |
+| Skill | ty | `.claude/commands/ty.md` | Embeds workflow.md (gate logic), consistency-check.md, expert-review.md, scenario-evaluation.md |
+| Skill | fb | `.claude/commands/fb.md` | Self-contained (no rule dependencies) |
+| Hook script | sandbox.sh | `.claude/hooks/sandbox.sh` | PreToolUse hook for auto-approval |
+| Hook script | notify.sh | `.claude/hooks/notify.sh` | Stop and Notification hooks for alerts |
+| Hook config | hooks.json | `.claude/settings.json` (hooks section) | Extracted from settings.json into plugin hooks format |
+| Script | statusline.sh | `.claude/statusline.sh` | Status line for context monitoring |
+| Script | allowed-domains.txt | `.claude/hooks/allowed-domains.txt` | Default domain whitelist (extension point) |
+| Script | up.sh | `setup/up.sh` (plugin part) | Plugin part only; aiya-dev part extracted |
+| Script | dn.sh | `setup/dn.sh` (plugin part) | Plugin part only; aiya-dev part extracted |
+| Script | wc.sh | `setup/wc.sh` (plugin part) | Plugin part only; aiya-dev part extracted |
+| Manifest | plugin.json | New | Plugin name, version, description |
+
+### Rule content embedding
+
+Plugins have no `rules/` directory. Rule content is embedded as instructions within skills, with verification steps for self-correction.
+
+| Rule file | Embedded in | How |
+|-----------|-------------|-----|
+| workflow.md | ty (gate logic), ok (workflow steps) | Phase/gate definitions as skill instructions |
+| requirements-definition.md | hi | Hearing procedure as skill instructions |
+| approach-design.md | ok | PR drafting procedure as skill instructions |
+| issue-format.md | hi | Issue format specification inline |
+| pr-format.md | ok | PR format specification inline |
+| consistency-check.md | ty (Gate 2→3 transition) | Verification procedure as skill instructions |
+| expert-review.md | ty (Gate 2→3 transition) | Review procedure as skill instructions |
+| scenario-evaluation.md | ty (Gate 2→3 transition) | Evaluation procedure as skill instructions |
+| work-records.md | ok, bb | Work records convention inline |
+| git-conventions.md | ok, bb | Branch/commit convention inline |
+| step-design.md | Skill development only | Referenced when modifying AIYA skills |
+| agent-behavior.md | All skills (shared preamble) | Agent behavior guidelines in each skill |
+| tool-adoption.md | ok (implementation phase) | Tool adoption process inline |
+| language.md | All skills (shared preamble) | Language convention in each skill |
+| temporary-files.md | ok (implementation phase) | Temp file convention inline |
+
+### What the plugin does NOT include
+
+| Excluded | Reason |
+|----------|--------|
+| testing.md, testing-shell.md | Testing conventions for AIYA development, not for plugin users |
+| *_test.sh (8 files) | Test code for AIYA development |
+| .github/workflows/test-shell.yml | CI pipeline for AIYA development |
+| skill-smith (6 files) | Skill development tool for AIYA contributors |
+| CLAUDE.md | Project-specific rules for the aiya-dev repository |
+| .env.example | Project configuration template for aiya-dev |
+| .aiya/issues/ | Runtime data generated during work; created by /aiya:ok and /aiya:bb |
+
+### Gaps and constraints
+
+| Gap | Impact | Mitigation |
+|-----|--------|------------|
+| Plugin settings.json only supports `agent` key | Cannot configure statusLine via plugin settings | Document manual statusLine setup in plugin README; investigate if CC supports plugin-provided statusLine |
+| `${CLAUDE_PLUGIN_ROOT}` required for paths | Hook scripts must use `${CLAUDE_PLUGIN_ROOT}` instead of `$CLAUDE_PROJECT_DIR` | Update all path references in hook scripts |
+| Skill description budget (2% of context) | Skills with embedded rules may exceed budget | Split large skills into skill + reference files; use `${CLAUDE_SKILL_DIR}` for dynamic reads |
+| Setup scripts need project-specific parts | up.sh/dn.sh/wc.sh contain aiya-dev-specific logic | Split into plugin part (reusable) + extension point (project-specific) |
