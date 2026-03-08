@@ -20,6 +20,8 @@ Go beyond what the script can check. Read the description and assess:
 
 **Triggering quality**: Generate 5 prompts that should trigger this skill. For each, judge: would Claude select this skill based on the description alone, alongside 20 other skill descriptions?
 
+Avoid prompts that merely rephrase the description's trigger phrases — those test recognition, not triggering robustness. Include prompts from different vocabulary, contexts, and user profiles (beginners who don't know technical terms, experts who use domain jargon, users describing the problem rather than the solution).
+
 - 5/5 trigger → Excellent
 - 4/5 trigger → Good
 - 3/5 or fewer → Needs work. Identify what's missing
@@ -38,6 +40,8 @@ Read the full SKILL.md body and assess:
 - Executable (concrete action) — target: >70%
 - Guideline (requires judgment) — acceptable: <25%
 - Vague (could mean anything) — target: 0%
+
+To distinguish Executable from Guideline, ask: "If 10 different agents execute this step with the same input, would all 10 produce the same result?" Yes → Executable, No → Guideline. For example, "Run `git diff origin/main --name-only`" is Executable (deterministic command), while "Accept findings that fix real issues; reject subjective preferences" is Guideline (requires judgment that varies by agent).
 
 Flag every Vague instruction with a concrete rewrite.
 
@@ -105,6 +109,8 @@ Pattern: [classified pattern]
 | **C** | 1-2 FAIL in non-core areas | Some violations, quick fixes available |
 | **D** | FAIL in description or instruction core | Core quality problem, skill won't work well |
 | **F** | FAIL in structure or required frontmatter | Skill won't load at all |
+
+Note: Improve mode detects issues at a lower threshold than Evaluate mode. A Grade A skill may still yield additional improvements when run through Improve mode. This is not a contradiction — Evaluate assesses against the Guide's pass/fail standards, while Improve searches for any opportunity to make the skill better.
 
 After reporting, ask: "Want me to fix the issues? I can switch to Improve mode."
 

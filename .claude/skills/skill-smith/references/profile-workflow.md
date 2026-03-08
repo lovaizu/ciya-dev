@@ -98,6 +98,7 @@ Test prompt: "{test_prompt}"
 Runs: {N}
 Total (avg): {duration}ms | {tokens} tokens | ~${cost} | {tool_calls} tools
 Note: Cost is approximate (total_tokens × blended rate).
+Note: Metrics are measured by launching a separate subagent per step. In production single-agent execution, Steps 1-3 typically have lower duration and tokens because they share context without subagent startup overhead.
 
 ## Per-Step Metrics (averages across {N} runs)
 

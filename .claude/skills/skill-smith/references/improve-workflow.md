@@ -72,6 +72,8 @@ When improving based on specific failures, look for the pattern behind the failu
 
 If a stubborn issue resists targeted fixes, try a completely different approach — different metaphors, different workflow structure, different tool usage. It's cheap to experiment.
 
+Limit improvement iterations to 2 rounds maximum. If the second round of re-validation reveals new issues, record them in the report without fixing — cascading fixes risk introducing more problems than they solve. The user can run Improve mode again on the remaining issues.
+
 ## Step 4: Re-validate
 
 Run `bash scripts/validate.sh <skill-path>` again. Confirm the grade improved. If new WARNs appeared, review them.
