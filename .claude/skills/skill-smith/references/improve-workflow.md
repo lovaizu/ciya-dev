@@ -7,13 +7,13 @@ Make an existing skill better. Improvement can be driven by:
 
 ## Step 1: Diagnose
 
-If no evaluation exists, run a quick assessment:
+Run all three diagnostic perspectives so Improve covers structure, quality, and performance:
 
 1. Run `bash scripts/validate.sh <skill-path>` for structural checks
-2. Read the SKILL.md and identify the most obvious issues
-3. Classify the skill's pattern (consult `references/patterns.md`)
-
-If evaluation results exist, use them directly — skip redundant analysis.
+2. Run Evaluate mode on the skill — read `references/evaluate-workflow.md` and execute Steps 1-7
+3. Run Profile mode on the skill — read `references/profile-workflow.md` and execute Steps 1-6
+4. Consolidate all findings: structural issues from validate.sh, quality issues from Evaluate, bottlenecks from Profile
+5. Classify by problem type and priority
 
 Identify the category of problems:
 
