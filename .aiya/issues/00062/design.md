@@ -23,68 +23,77 @@ AIYA is a development workflow system for Claude Code that realizes the "Agents 
 
 ## 2. Current State Analysis
 
-Each file categorized by README concept. Files serving no concept are aiya-dev only. Plugin Target shows the plugin component each file maps to.
+Each file categorized by README concept. Files serving no concept are aiya-dev only.
 
-| Path | Concept | Reason | Plugin Target |
-|------|---------|--------|---------------|
-| `.claude/rules/workflow.md` | No babysitting | Defines 3 phases and gates that guard quality | Embedded in ok, ty |
-| `.claude/rules/requirements-definition.md` | No babysitting | Phase 1 procedure agents follow independently | Embedded in hi |
-| `.claude/rules/approach-design.md` | No babysitting | Phase 2 procedure agents follow independently | Embedded in ok |
-| `.claude/rules/issue-format.md` | No babysitting | Structured format ensures consistent quality | Embedded in hi |
-| `.claude/rules/pr-format.md` | No babysitting | Structured format ensures consistent quality | Embedded in ok |
-| `.claude/rules/consistency-check.md` | No babysitting | Verification agents run without supervision | Embedded in ty |
-| `.claude/rules/expert-review.md` | No babysitting | Verification agents run without supervision | Embedded in ty |
-| `.claude/rules/scenario-evaluation.md` | No babysitting | Verification agents run without supervision | Embedded in ty |
-| `.claude/rules/work-records.md` | Walk away anytime | State persistence convention for save/resume | Embedded in ok, bb |
-| `.claude/rules/git-conventions.md` | No babysitting | Convention agents follow without supervision | Embedded in ok, bb |
-| `.claude/rules/step-design.md` | No babysitting | Convention agents follow without supervision | Skill development reference |
-| `.claude/rules/agent-behavior.md` | No babysitting | Convention agents follow without supervision | Embedded in all skills |
-| `.claude/rules/testing.md` | aiya-dev | Testing convention for AIYA development | — |
-| `.claude/rules/testing-shell.md` | aiya-dev | Shell testing convention for AIYA development | — |
-| `.claude/rules/tool-adoption.md` | No babysitting | Convention agents follow without supervision | Embedded in ok |
-| `.claude/rules/language.md` | No babysitting | Convention agents follow without supervision | Embedded in all skills |
-| `.claude/rules/temporary-files.md` | No babysitting | Convention agents follow without supervision | Embedded in ok |
-| `.claude/commands/hi.md` | No babysitting | Structured issue creation via gate process | Skill: hi |
-| `.claude/commands/ok.md` | Walk away anytime | Resumes saved work state from any worktree | Skill: ok |
-| `.claude/commands/bb.md` | Walk away anytime | Saves work state for later resumption | Skill: bb |
-| `.claude/commands/ty.md` | No babysitting | Approves gates in the quality process | Skill: ty |
-| `.claude/commands/fb.md` | No babysitting | Addresses feedback in the review process | Skill: fb |
-| `.claude/hooks/sandbox.sh` | No babysitting | Auto-approves safe actions without developer | Hook: sandbox |
-| `.claude/hooks/sandbox_test.sh` | aiya-dev | Tests for sandbox (AIYA development) | — |
-| `.claude/hooks/notify.sh` | Scale as one | Alerts developer across parallel instances | Hook: notify |
-| `.claude/hooks/notify_test.sh` | aiya-dev | Tests for notify (AIYA development) | — |
-| `.claude/hooks/allowed-domains.txt` | No babysitting | Domain whitelist for sandbox auto-approval | Hook support: allowed-domains.txt |
-| `.claude/statusline.sh` | Walk away anytime | Monitors context to decide when to save/resume | Script: statusline |
-| `.claude/statusline_test.sh` | aiya-dev | Tests for statusline (AIYA development) | — |
-| `.claude/settings.json` | No babysitting | Hook and statusline configuration | hooks.json |
-| `setup/up.sh` | Scale as one | Creates parallel worker instances | Script: up (plugin part) |
-| `setup/up_test.sh` | aiya-dev | Tests for up.sh (AIYA development) | — |
-| `setup/dn.sh` | Scale as one | Removes parallel worker instances | Script: dn (plugin part) |
-| `setup/dn_test.sh` | aiya-dev | Tests for dn.sh (AIYA development) | — |
-| `setup/wc.sh` | Scale as one | Initializes worktrees for parallel work | Script: wc (plugin part) |
-| `setup/wc_test.sh` | aiya-dev | Tests for wc.sh (AIYA development) | — |
-| `README.md` | No babysitting, Scale as one, Walk away anytime | Documents all 3 concepts for AIYA users; plugin needs equivalent | Plugin README (Step 3) |
-| `.claude/skills/skill-smith/SKILL.md` | aiya-dev | Skill development tool for AIYA contributors | — |
-| `.claude/skills/skill-smith/references/checklist.md` | aiya-dev | Skill quality checklist | — |
-| `.claude/skills/skill-smith/references/patterns.md` | aiya-dev | Skill writing patterns | — |
-| `.claude/skills/skill-smith/references/writing-guide.md` | aiya-dev | Skill writing guide | — |
-| `.claude/skills/skill-smith/scripts/validate.sh` | aiya-dev | Skill validation script | — |
-| `.claude/skills/skill-smith/scripts/validate_test.sh` | aiya-dev | Tests for validation script | — |
-| `.github/workflows/test-shell.yml` | aiya-dev | CI pipeline for AIYA development | — |
-| `CLAUDE.md` | aiya-dev | Project rules for aiya-dev repository | — |
-| `.env.example` | aiya-dev | Environment configuration template | — |
-| `.aiya/issues/` | aiya-dev | Work records data generated at runtime | — |
-| `plugin.json` (new) | — | Plugin manifest | Manifest: plugin.json |
+| Path | Concept | Reason |
+|------|---------|--------|
+| `.claude/rules/workflow.md` | No babysitting | Defines 3 phases and gates that guard quality |
+| `.claude/rules/requirements-definition.md` | No babysitting | Phase 1 procedure agents follow independently |
+| `.claude/rules/approach-design.md` | No babysitting | Phase 2 procedure agents follow independently |
+| `.claude/rules/issue-format.md` | No babysitting | Structured format ensures consistent quality |
+| `.claude/rules/pr-format.md` | No babysitting | Structured format ensures consistent quality |
+| `.claude/rules/consistency-check.md` | No babysitting | Verification agents run without supervision |
+| `.claude/rules/expert-review.md` | No babysitting | Verification agents run without supervision |
+| `.claude/rules/scenario-evaluation.md` | No babysitting | Verification agents run without supervision |
+| `.claude/rules/work-records.md` | Walk away anytime | State persistence convention for save/resume |
+| `.claude/rules/git-conventions.md` | No babysitting | Convention agents follow without supervision |
+| `.claude/rules/step-design.md` | No babysitting | Convention agents follow without supervision |
+| `.claude/rules/agent-behavior.md` | No babysitting | Convention agents follow without supervision |
+| `.claude/rules/testing.md` | aiya-dev | Testing convention for AIYA development |
+| `.claude/rules/testing-shell.md` | aiya-dev | Shell testing convention for AIYA development |
+| `.claude/rules/tool-adoption.md` | No babysitting | Convention agents follow without supervision |
+| `.claude/rules/language.md` | No babysitting | Convention agents follow without supervision |
+| `.claude/rules/temporary-files.md` | No babysitting | Convention agents follow without supervision |
+| `.claude/commands/hi.md` | No babysitting | Structured issue creation via gate process |
+| `.claude/commands/ok.md` | Walk away anytime | Resumes saved work state from any worktree |
+| `.claude/commands/bb.md` | Walk away anytime | Saves work state for later resumption |
+| `.claude/commands/ty.md` | No babysitting | Approves gates in the quality process |
+| `.claude/commands/fb.md` | No babysitting | Addresses feedback in the review process |
+| `.claude/hooks/sandbox.sh` | No babysitting | Auto-approves safe actions without developer |
+| `.claude/hooks/sandbox_test.sh` | aiya-dev | Tests for sandbox (AIYA development) |
+| `.claude/hooks/notify.sh` | Scale as one | Alerts developer across parallel instances |
+| `.claude/hooks/notify_test.sh` | aiya-dev | Tests for notify (AIYA development) |
+| `.claude/hooks/allowed-domains.txt` | No babysitting | Domain whitelist for sandbox auto-approval |
+| `.claude/statusline.sh` | Walk away anytime | Monitors context to decide when to save/resume |
+| `.claude/statusline_test.sh` | aiya-dev | Tests for statusline (AIYA development) |
+| `.claude/settings.json` | No babysitting | Hook and statusline configuration |
+| `setup/up.sh` | Scale as one | Creates parallel worker instances |
+| `setup/up_test.sh` | aiya-dev | Tests for up.sh (AIYA development) |
+| `setup/dn.sh` | Scale as one | Removes parallel worker instances |
+| `setup/dn_test.sh` | aiya-dev | Tests for dn.sh (AIYA development) |
+| `setup/wc.sh` | Scale as one | Initializes worktrees for parallel work |
+| `setup/wc_test.sh` | aiya-dev | Tests for wc.sh (AIYA development) |
+| `README.md` | No babysitting, Scale as one, Walk away anytime | Documents all 3 concepts for AIYA users; plugin needs equivalent |
+| `.claude/skills/skill-smith/SKILL.md` | aiya-dev | Skill development tool for AIYA contributors |
+| `.claude/skills/skill-smith/references/checklist.md` | aiya-dev | Skill quality checklist |
+| `.claude/skills/skill-smith/references/patterns.md` | aiya-dev | Skill writing patterns |
+| `.claude/skills/skill-smith/references/writing-guide.md` | aiya-dev | Skill writing guide |
+| `.claude/skills/skill-smith/scripts/validate.sh` | aiya-dev | Skill validation script |
+| `.claude/skills/skill-smith/scripts/validate_test.sh` | aiya-dev | Tests for validation script |
+| `.github/workflows/test-shell.yml` | aiya-dev | CI pipeline for AIYA development |
+| `CLAUDE.md` | aiya-dev | Project rules for aiya-dev repository |
+| `.env.example` | aiya-dev | Environment configuration template |
+| `.aiya/issues/` | aiya-dev | Work records data generated at runtime |
 
 ## 3. Plugin Requirements
 
 ### What the User Gets
 
-| Concept | What the user gets |
-|---------|-------------------|
-| No babysitting | • Describe a goal; agent creates a structured issue • Agent designs approach, implements, and verifies independently • Approve each phase; agent proceeds to next • Agent addresses review feedback • Safe actions auto-approved without prompts |
-| Scale as one | • Start and stop parallel worker instances • Get alerted when any agent needs attention |
-| Walk away anytime | • Save work state and step away at any time • Resume from where you left off in any worktree • Monitor context usage at a glance |
+**No babysitting**
+- Describe a goal; agent creates a structured issue
+- Agent designs approach, implements, and verifies independently
+- Approve each phase; agent proceeds to next
+- Agent addresses review feedback
+- Safe actions auto-approved without prompts
+
+**Scale as one**
+- Start and stop parallel worker instances
+- Get alerted when any agent needs attention
+
+**Walk away anytime**
+- Save work state and step away at any time
+- Resume from where you left off in any worktree
+- Monitor context usage at a glance
 
 ### Rule Embedding
 
