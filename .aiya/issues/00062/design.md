@@ -2,104 +2,83 @@
 
 AIYA is a development workflow system for Claude Code that realizes the "Agents in your area" concept — AI agents working alongside developers in their environment. Currently, AIYA consists of 47 files spread across `.claude/rules/`, `.claude/commands/`, `.claude/hooks/`, `setup/`, and other directories. Developers who want to adopt AIYA must manually copy and integrate many interdependent files, risk conflicts with existing configurations, and cannot easily update.
 
-## Step 1: Current State Analysis
+## Sections
 
-Each file is categorized by which README concept it primarily serves. Files that don't serve any concept are for AIYA development only (aiya-dev).
+| Section | Completed by |
+|---------|-------------|
+| File Inventory | Step 1 ✓, Step 2 (Plugin Target) ✓ |
+| What the User Gets | Step 2 ✓ |
+| Rule Embedding | Step 2 ✓; refine in Step 4 |
+| Exclusions | Step 2 ✓ |
+| Gaps and Constraints | Step 2 ✓; refine in Step 4 |
+| Plugin Structure | TODO: Step 4 |
+| Key Decisions | Ongoing |
+| Open Questions | Ongoing |
 
-### File Inventory
+## File Inventory
 
-| Path | Concept | Reason |
-|------|---------|--------|
-| `.claude/rules/workflow.md` | No babysitting | Defines 3 phases and gates that guard quality |
-| `.claude/rules/requirements-definition.md` | No babysitting | Phase 1 procedure agents follow independently |
-| `.claude/rules/approach-design.md` | No babysitting | Phase 2 procedure agents follow independently |
-| `.claude/rules/issue-format.md` | No babysitting | Structured format ensures consistent quality |
-| `.claude/rules/pr-format.md` | No babysitting | Structured format ensures consistent quality |
-| `.claude/rules/consistency-check.md` | No babysitting | Verification agents run without supervision |
-| `.claude/rules/expert-review.md` | No babysitting | Verification agents run without supervision |
-| `.claude/rules/scenario-evaluation.md` | No babysitting | Verification agents run without supervision |
-| `.claude/rules/work-records.md` | Walk away anytime | State persistence convention for save/resume |
-| `.claude/rules/git-conventions.md` | No babysitting | Convention agents follow without supervision |
-| `.claude/rules/step-design.md` | No babysitting | Convention agents follow without supervision |
-| `.claude/rules/agent-behavior.md` | No babysitting | Convention agents follow without supervision |
-| `.claude/rules/testing.md` | aiya-dev | Testing convention for AIYA development |
-| `.claude/rules/testing-shell.md` | aiya-dev | Shell testing convention for AIYA development |
-| `.claude/rules/tool-adoption.md` | No babysitting | Convention agents follow without supervision |
-| `.claude/rules/language.md` | No babysitting | Convention agents follow without supervision |
-| `.claude/rules/temporary-files.md` | No babysitting | Convention agents follow without supervision |
-| `.claude/commands/hi.md` | No babysitting | Structured issue creation via gate process |
-| `.claude/commands/ok.md` | Walk away anytime | Resumes saved work state from any worktree |
-| `.claude/commands/bb.md` | Walk away anytime | Saves work state for later resumption |
-| `.claude/commands/ty.md` | No babysitting | Approves gates in the quality process |
-| `.claude/commands/fb.md` | No babysitting | Addresses feedback in the review process |
-| `.claude/hooks/sandbox.sh` | No babysitting | Auto-approves safe actions without developer |
-| `.claude/hooks/sandbox_test.sh` | aiya-dev | Tests for sandbox (AIYA development) |
-| `.claude/hooks/notify.sh` | Scale as one | Alerts developer across parallel instances |
-| `.claude/hooks/notify_test.sh` | aiya-dev | Tests for notify (AIYA development) |
-| `.claude/hooks/allowed-domains.txt` | No babysitting | Domain whitelist for sandbox auto-approval |
-| `.claude/statusline.sh` | Walk away anytime | Monitors context to decide when to save/resume |
-| `.claude/statusline_test.sh` | aiya-dev | Tests for statusline (AIYA development) |
-| `.claude/settings.json` | No babysitting | Hook and statusline configuration |
-| `setup/up.sh` | Scale as one | Creates parallel worker instances |
-| `setup/up_test.sh` | aiya-dev | Tests for up.sh (AIYA development) |
-| `setup/dn.sh` | Scale as one | Removes parallel worker instances |
-| `setup/dn_test.sh` | aiya-dev | Tests for dn.sh (AIYA development) |
-| `setup/wc.sh` | Scale as one | Initializes worktrees for parallel work |
-| `setup/wc_test.sh` | aiya-dev | Tests for wc.sh (AIYA development) |
-| `README.md` | No babysitting, Scale as one, Walk away anytime | Documents all 3 concepts for AIYA users; plugin needs equivalent |
-| `.claude/skills/skill-smith/SKILL.md` | aiya-dev | Skill development tool for AIYA contributors |
-| `.claude/skills/skill-smith/references/checklist.md` | aiya-dev | Skill quality checklist |
-| `.claude/skills/skill-smith/references/patterns.md` | aiya-dev | Skill writing patterns |
-| `.claude/skills/skill-smith/references/writing-guide.md` | aiya-dev | Skill writing guide |
-| `.claude/skills/skill-smith/scripts/validate.sh` | aiya-dev | Skill validation script |
-| `.claude/skills/skill-smith/scripts/validate_test.sh` | aiya-dev | Tests for validation script |
-| `.github/workflows/test-shell.yml` | aiya-dev | CI pipeline for AIYA development |
-| `CLAUDE.md` | aiya-dev | Project rules for aiya-dev repository |
-| `.env.example` | aiya-dev | Environment configuration template |
-| `.aiya/issues/` | aiya-dev | Work records data generated at runtime |
+Each file categorized by README concept. Files serving no concept are aiya-dev only. Plugin Target shows the plugin component each file maps to (detailed paths in Step 4).
 
-## Key Decisions
+| Path | Concept | Reason | Plugin Target |
+|------|---------|--------|---------------|
+| `.claude/rules/workflow.md` | No babysitting | Defines 3 phases and gates that guard quality | Embedded in ok, ty |
+| `.claude/rules/requirements-definition.md` | No babysitting | Phase 1 procedure agents follow independently | Embedded in hi |
+| `.claude/rules/approach-design.md` | No babysitting | Phase 2 procedure agents follow independently | Embedded in ok |
+| `.claude/rules/issue-format.md` | No babysitting | Structured format ensures consistent quality | Embedded in hi |
+| `.claude/rules/pr-format.md` | No babysitting | Structured format ensures consistent quality | Embedded in ok |
+| `.claude/rules/consistency-check.md` | No babysitting | Verification agents run without supervision | Embedded in ty |
+| `.claude/rules/expert-review.md` | No babysitting | Verification agents run without supervision | Embedded in ty |
+| `.claude/rules/scenario-evaluation.md` | No babysitting | Verification agents run without supervision | Embedded in ty |
+| `.claude/rules/work-records.md` | Walk away anytime | State persistence convention for save/resume | Embedded in ok, bb |
+| `.claude/rules/git-conventions.md` | No babysitting | Convention agents follow without supervision | Embedded in ok, bb |
+| `.claude/rules/step-design.md` | No babysitting | Convention agents follow without supervision | Skill development reference |
+| `.claude/rules/agent-behavior.md` | No babysitting | Convention agents follow without supervision | Embedded in all skills |
+| `.claude/rules/testing.md` | aiya-dev | Testing convention for AIYA development | — |
+| `.claude/rules/testing-shell.md` | aiya-dev | Shell testing convention for AIYA development | — |
+| `.claude/rules/tool-adoption.md` | No babysitting | Convention agents follow without supervision | Embedded in ok |
+| `.claude/rules/language.md` | No babysitting | Convention agents follow without supervision | Embedded in all skills |
+| `.claude/rules/temporary-files.md` | No babysitting | Convention agents follow without supervision | Embedded in ok |
+| `.claude/commands/hi.md` | No babysitting | Structured issue creation via gate process | Skill: hi |
+| `.claude/commands/ok.md` | Walk away anytime | Resumes saved work state from any worktree | Skill: ok |
+| `.claude/commands/bb.md` | Walk away anytime | Saves work state for later resumption | Skill: bb |
+| `.claude/commands/ty.md` | No babysitting | Approves gates in the quality process | Skill: ty |
+| `.claude/commands/fb.md` | No babysitting | Addresses feedback in the review process | Skill: fb |
+| `.claude/hooks/sandbox.sh` | No babysitting | Auto-approves safe actions without developer | Hook: sandbox |
+| `.claude/hooks/sandbox_test.sh` | aiya-dev | Tests for sandbox (AIYA development) | — |
+| `.claude/hooks/notify.sh` | Scale as one | Alerts developer across parallel instances | Hook: notify |
+| `.claude/hooks/notify_test.sh` | aiya-dev | Tests for notify (AIYA development) | — |
+| `.claude/hooks/allowed-domains.txt` | No babysitting | Domain whitelist for sandbox auto-approval | Hook support: allowed-domains.txt |
+| `.claude/statusline.sh` | Walk away anytime | Monitors context to decide when to save/resume | Script: statusline |
+| `.claude/statusline_test.sh` | aiya-dev | Tests for statusline (AIYA development) | — |
+| `.claude/settings.json` | No babysitting | Hook and statusline configuration | hooks.json |
+| `setup/up.sh` | Scale as one | Creates parallel worker instances | Script: up (plugin part) |
+| `setup/up_test.sh` | aiya-dev | Tests for up.sh (AIYA development) | — |
+| `setup/dn.sh` | Scale as one | Removes parallel worker instances | Script: dn (plugin part) |
+| `setup/dn_test.sh` | aiya-dev | Tests for dn.sh (AIYA development) | — |
+| `setup/wc.sh` | Scale as one | Initializes worktrees for parallel work | Script: wc (plugin part) |
+| `setup/wc_test.sh` | aiya-dev | Tests for wc.sh (AIYA development) | — |
+| `README.md` | No babysitting, Scale as one, Walk away anytime | Documents all 3 concepts for AIYA users; plugin needs equivalent | Plugin README (Step 3) |
+| `.claude/skills/skill-smith/SKILL.md` | aiya-dev | Skill development tool for AIYA contributors | — |
+| `.claude/skills/skill-smith/references/checklist.md` | aiya-dev | Skill quality checklist | — |
+| `.claude/skills/skill-smith/references/patterns.md` | aiya-dev | Skill writing patterns | — |
+| `.claude/skills/skill-smith/references/writing-guide.md` | aiya-dev | Skill writing guide | — |
+| `.claude/skills/skill-smith/scripts/validate.sh` | aiya-dev | Skill validation script | — |
+| `.claude/skills/skill-smith/scripts/validate_test.sh` | aiya-dev | Tests for validation script | — |
+| `.github/workflows/test-shell.yml` | aiya-dev | CI pipeline for AIYA development | — |
+| `CLAUDE.md` | aiya-dev | Project rules for aiya-dev repository | — |
+| `.env.example` | aiya-dev | Environment configuration template | — |
+| `.aiya/issues/` | aiya-dev | Work records data generated at runtime | — |
+| `plugin.json` (new) | — | Plugin manifest | Manifest: plugin.json |
 
-1. **Plugin over single skill**: CC plugins can contain commands, hooks, skills, and settings as a single distributable unit. A single skill cannot include slash commands or hooks. Plugin is the correct distribution mechanism.
-2. **Rules as workflow instructions**: Plugins have no `rules/` directory. Rule content will be embedded as agent instructions in plugin workflows or templates, not as separate rule files. Verification steps enable self-correction. Skill changes follow step-design.md.
-3. **Setup script split**: Setup scripts will be split into plugin parts (reusable) and aiya-dev-only parts (separate script files). Plugin users add project-specific processing in the extracted parts, which serve as extension points.
-4. **allowed-domains.txt as default + extension point**: Current domains distributed as default. Setup displays a message prompting the user to customize. README documents this as an extension point (same pattern as setup scripts).
-5. **Testing rules and test code are aiya-dev only**: Testing conventions (testing.md, testing-shell.md) and test files (*_test.sh) are for AIYA development, not for plugin users.
-
-## Open Questions
-
-None — all questions resolved.
-
-## Step 2: Plugin Requirements
-
-### What the plugin provides (user perspective)
+## What the User Gets
 
 | Concept | What the user gets |
 |---------|-------------------|
-| No babysitting | Structured workflow (3 phases, 3 gates), 5 commands (/aiya:hi, /aiya:ok, /aiya:bb, /aiya:ty, /aiya:fb), automated safety (sandbox), conventions embedded in workflow instructions |
-| Scale as one | Parallel work setup (up.sh, dn.sh, wc.sh), notifications across instances (notify) |
-| Walk away anytime | Save/resume work state (/aiya:ok, /aiya:bb), context monitoring (statusline) |
+| No babysitting | • `/hi` — Describe your goal; agent creates a structured issue<br>• `/ok` — Agent designs approach, implements, and verifies<br>• `/ty` — Approve gate; agent proceeds to next phase<br>• `/fb` — Agent addresses review feedback<br>• sandbox — Safe actions auto-approved without prompts |
+| Scale as one | • `up.sh`/`dn.sh` — Start and stop parallel worker instances<br>• notify — Get alerted when any agent needs attention |
+| Walk away anytime | • `/bb` — Save work state and step away<br>• `/ok` — Resume from where you left off in any pane<br>• statusline — Monitor context usage at a glance |
 
-### Plugin components
-
-| Type | Component | Source | Notes |
-|------|-----------|--------|-------|
-| Skill | hi | `.claude/commands/hi.md` | Embeds requirements-definition.md, issue-format.md |
-| Skill | ok | `.claude/commands/ok.md` | Embeds work-records.md, pr-format.md, approach-design.md, git-conventions.md |
-| Skill | bb | `.claude/commands/bb.md` | Embeds work-records.md, git-conventions.md |
-| Skill | ty | `.claude/commands/ty.md` | Embeds workflow.md (gate logic), consistency-check.md, expert-review.md, scenario-evaluation.md |
-| Skill | fb | `.claude/commands/fb.md` | Self-contained (no rule dependencies) |
-| Hook script | sandbox.sh | `.claude/hooks/sandbox.sh` | PreToolUse hook for auto-approval |
-| Hook script | notify.sh | `.claude/hooks/notify.sh` | Stop and Notification hooks for alerts |
-| Hook config | hooks.json | `.claude/settings.json` (hooks section) | Extracted from settings.json into plugin hooks format |
-| Script | statusline.sh | `.claude/statusline.sh` | Status line for context monitoring |
-| Script | allowed-domains.txt | `.claude/hooks/allowed-domains.txt` | Default domain whitelist (extension point) |
-| Script | up.sh | `setup/up.sh` (plugin part) | Plugin part only; aiya-dev part extracted |
-| Script | dn.sh | `setup/dn.sh` (plugin part) | Plugin part only; aiya-dev part extracted |
-| Script | wc.sh | `setup/wc.sh` (plugin part) | Plugin part only; aiya-dev part extracted |
-| Manifest | plugin.json | New | Plugin name, version, description |
-
-### Rule content embedding
+## Rule Embedding
 
 Plugins have no `rules/` directory. Rule content is embedded as instructions within skills, with verification steps for self-correction.
 
@@ -121,7 +100,7 @@ Plugins have no `rules/` directory. Rule content is embedded as instructions wit
 | language.md | All skills (shared preamble) | Language convention in each skill |
 | temporary-files.md | ok (implementation phase) | Temp file convention inline |
 
-### What the plugin does NOT include
+## Exclusions
 
 | Excluded | Reason |
 |----------|--------|
@@ -133,7 +112,7 @@ Plugins have no `rules/` directory. Rule content is embedded as instructions wit
 | .env.example | Project configuration template for aiya-dev |
 | .aiya/issues/ | Runtime data generated during work; created by /aiya:ok and /aiya:bb |
 
-### Gaps and constraints
+## Gaps and Constraints
 
 | Gap | Impact | Mitigation |
 |-----|--------|------------|
@@ -141,3 +120,19 @@ Plugins have no `rules/` directory. Rule content is embedded as instructions wit
 | `${CLAUDE_PLUGIN_ROOT}` required for paths | Hook scripts must use `${CLAUDE_PLUGIN_ROOT}` instead of `$CLAUDE_PROJECT_DIR` | Update all path references in hook scripts |
 | Skill description budget (2% of context) | Skills with embedded rules may exceed budget | Split large skills into skill + reference files; use `${CLAUDE_SKILL_DIR}` for dynamic reads |
 | Setup scripts need project-specific parts | up.sh/dn.sh/wc.sh contain aiya-dev-specific logic | Split into plugin part (reusable) + extension point (project-specific) |
+
+## Plugin Structure
+
+TODO: Step 4 — Design plugin directory structure, map files to exact plugin paths, solve rules integration details.
+
+## Key Decisions
+
+1. **Plugin over single skill**: CC plugins can contain commands, hooks, skills, and settings as a single distributable unit. A single skill cannot include slash commands or hooks. Plugin is the correct distribution mechanism.
+2. **Rules as workflow instructions**: Plugins have no `rules/` directory. Rule content will be embedded as agent instructions in plugin workflows or templates, not as separate rule files. Verification steps enable self-correction. Skill changes follow step-design.md.
+3. **Setup script split**: Setup scripts will be split into plugin parts (reusable) and aiya-dev-only parts (separate script files). Plugin users add project-specific processing in the extracted parts, which serve as extension points.
+4. **allowed-domains.txt as default + extension point**: Current domains distributed as default. Setup displays a message prompting the user to customize. README documents this as an extension point (same pattern as setup scripts).
+5. **Testing rules and test code are aiya-dev only**: Testing conventions (testing.md, testing-shell.md) and test files (*_test.sh) are for AIYA development, not for plugin users.
+
+## Open Questions
+
+None — all questions resolved.
