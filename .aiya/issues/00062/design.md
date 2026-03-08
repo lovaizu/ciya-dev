@@ -1,23 +1,29 @@
-## Problem Summary
+## Outline
+
+| # | Section | Step | Status |
+|---|---------|------|--------|
+| 1 | Design Background | — | ✓ |
+| 2 | Current State Analysis | Step 1 | ✓ |
+| 3 | Plugin Requirements | Step 2 | ✓ |
+| 4 | Plugin UX | Step 3 | TODO |
+| 5 | Plugin Structure Design | Step 4 | TODO |
+| 6 | Plugin Test Strategy | Step 5–6 | TODO |
+
+## 1. Design Background
 
 AIYA is a development workflow system for Claude Code that realizes the "Agents in your area" concept — AI agents working alongside developers in their environment. Currently, AIYA consists of 47 files spread across `.claude/rules/`, `.claude/commands/`, `.claude/hooks/`, `setup/`, and other directories. Developers who want to adopt AIYA must manually copy and integrate many interdependent files, risk conflicts with existing configurations, and cannot easily update.
 
-## Sections
+### Key Decisions
 
-| Section | Completed by |
-|---------|-------------|
-| File Inventory | Step 1 ✓, Step 2 (Plugin Target) ✓ |
-| What the User Gets | Step 2 ✓ |
-| Rule Embedding | Step 2 ✓; refine in Step 4 |
-| Exclusions | Step 2 ✓ |
-| Gaps and Constraints | Step 2 ✓; refine in Step 4 |
-| Plugin Structure | TODO: Step 4 |
-| Key Decisions | Ongoing |
-| Open Questions | Ongoing |
+1. **Plugin over single skill**: CC plugins can contain commands, hooks, skills, and settings as a single distributable unit. A single skill cannot include slash commands or hooks. Plugin is the correct distribution mechanism.
+2. **Rules as workflow instructions**: Plugins have no `rules/` directory. Rule content will be embedded as agent instructions in plugin workflows or templates, not as separate rule files. Verification steps enable self-correction. Skill changes follow step-design.md.
+3. **Setup script split**: Setup scripts will be split into plugin parts (reusable) and aiya-dev-only parts (separate script files). Plugin users add project-specific processing in the extracted parts, which serve as extension points.
+4. **allowed-domains.txt as default + extension point**: Current domains distributed as default. Setup displays a message prompting the user to customize. README documents this as an extension point (same pattern as setup scripts).
+5. **Testing rules and test code are aiya-dev only**: Testing conventions (testing.md, testing-shell.md) and test files (*_test.sh) are for AIYA development, not for plugin users.
 
-## File Inventory
+## 2. Current State Analysis
 
-Each file categorized by README concept. Files serving no concept are aiya-dev only. Plugin Target shows the plugin component each file maps to (detailed paths in Step 4).
+Each file categorized by README concept. Files serving no concept are aiya-dev only. Plugin Target shows the plugin component each file maps to.
 
 | Path | Concept | Reason | Plugin Target |
 |------|---------|--------|---------------|
@@ -70,15 +76,17 @@ Each file categorized by README concept. Files serving no concept are aiya-dev o
 | `.aiya/issues/` | aiya-dev | Work records data generated at runtime | — |
 | `plugin.json` (new) | — | Plugin manifest | Manifest: plugin.json |
 
-## What the User Gets
+## 3. Plugin Requirements
+
+### What the User Gets
 
 | Concept | What the user gets |
 |---------|-------------------|
-| No babysitting | • `/hi` — Describe your goal; agent creates a structured issue<br>• `/ok` — Agent designs approach, implements, and verifies<br>• `/ty` — Approve gate; agent proceeds to next phase<br>• `/fb` — Agent addresses review feedback<br>• sandbox — Safe actions auto-approved without prompts |
-| Scale as one | • `up.sh`/`dn.sh` — Start and stop parallel worker instances<br>• notify — Get alerted when any agent needs attention |
-| Walk away anytime | • `/bb` — Save work state and step away<br>• `/ok` — Resume from where you left off in any pane<br>• statusline — Monitor context usage at a glance |
+| No babysitting | • Describe a goal; agent creates a structured issue • Agent designs approach, implements, and verifies independently • Approve each phase; agent proceeds to next • Agent addresses review feedback • Safe actions auto-approved without prompts |
+| Scale as one | • Start and stop parallel worker instances • Get alerted when any agent needs attention |
+| Walk away anytime | • Save work state and step away at any time • Resume from where you left off in any worktree • Monitor context usage at a glance |
 
-## Rule Embedding
+### Rule Embedding
 
 Plugins have no `rules/` directory. Rule content is embedded as instructions within skills, with verification steps for self-correction.
 
@@ -100,7 +108,7 @@ Plugins have no `rules/` directory. Rule content is embedded as instructions wit
 | language.md | All skills (shared preamble) | Language convention in each skill |
 | temporary-files.md | ok (implementation phase) | Temp file convention inline |
 
-## Exclusions
+### Exclusions
 
 | Excluded | Reason |
 |----------|--------|
@@ -110,9 +118,15 @@ Plugins have no `rules/` directory. Rule content is embedded as instructions wit
 | skill-smith (6 files) | Skill development tool for AIYA contributors |
 | CLAUDE.md | Project-specific rules for the aiya-dev repository |
 | .env.example | Project configuration template for aiya-dev |
-| .aiya/issues/ | Runtime data generated during work; created by /aiya:ok and /aiya:bb |
+| .aiya/issues/ | Runtime data generated during work; created by ok and bb |
 
-## Gaps and Constraints
+## 4. Plugin UX
+
+TODO: Step 3
+
+## 5. Plugin Structure Design
+
+### Gaps and Constraints
 
 | Gap | Impact | Mitigation |
 |-----|--------|------------|
@@ -121,17 +135,11 @@ Plugins have no `rules/` directory. Rule content is embedded as instructions wit
 | Skill description budget (2% of context) | Skills with embedded rules may exceed budget | Split large skills into skill + reference files; use `${CLAUDE_SKILL_DIR}` for dynamic reads |
 | Setup scripts need project-specific parts | up.sh/dn.sh/wc.sh contain aiya-dev-specific logic | Split into plugin part (reusable) + extension point (project-specific) |
 
-## Plugin Structure
-
 TODO: Step 4 — Design plugin directory structure, map files to exact plugin paths, solve rules integration details.
 
-## Key Decisions
+## 6. Plugin Test Strategy
 
-1. **Plugin over single skill**: CC plugins can contain commands, hooks, skills, and settings as a single distributable unit. A single skill cannot include slash commands or hooks. Plugin is the correct distribution mechanism.
-2. **Rules as workflow instructions**: Plugins have no `rules/` directory. Rule content will be embedded as agent instructions in plugin workflows or templates, not as separate rule files. Verification steps enable self-correction. Skill changes follow step-design.md.
-3. **Setup script split**: Setup scripts will be split into plugin parts (reusable) and aiya-dev-only parts (separate script files). Plugin users add project-specific processing in the extracted parts, which serve as extension points.
-4. **allowed-domains.txt as default + extension point**: Current domains distributed as default. Setup displays a message prompting the user to customize. README documents this as an extension point (same pattern as setup scripts).
-5. **Testing rules and test code are aiya-dev only**: Testing conventions (testing.md, testing-shell.md) and test files (*_test.sh) are for AIYA development, not for plugin users.
+TODO: Step 5–6
 
 ## Open Questions
 
