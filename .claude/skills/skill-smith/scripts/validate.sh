@@ -297,7 +297,7 @@ fi
 
 # ── Instruction metrics ──
 # Body = everything after second ---
-BODY="$(sed '1,/^---$/d' "$SKILL_DIR/SKILL.md" | sed '1,/^---$/d')"
+BODY="$(awk 'c>=2; /^---$/{c++}' "$SKILL_DIR/SKILL.md")"
 BODY_LINES="$(echo "$BODY" | wc -l)"
 BODY_WORDS="$(echo "$BODY" | wc -w)"
 
@@ -332,7 +332,7 @@ if [[ -d "$SCRIPTS_DIR" ]]; then
     [[ "$sfname" == "validate.sh" ]] && continue
     # Only scan actual script files
     case "$sfname" in
-      *.py|*.sh|*.js|*.ts|*.rb|*.pl) ;;
+      *.py|*.sh|*.js|*.ts|*.rb|*.pl) : ;;
       *) continue ;;
     esac
     for pattern in 'rm[[:space:]]+\-rf[[:space:]]+/' '\bsudo\b' 'curl.*-d[[:space:]]*@' 'wget.*[|].*sh'; do
@@ -342,7 +342,7 @@ if [[ -d "$SCRIPTS_DIR" ]]; then
         DANGER_FOUND=true
       fi
     done
-  done < <(find "$SCRIPTS_DIR" -type f -print0)
+  done < <(find "$SCRIPTS_DIR" -type f -print0)  # LCOV_EXCL_LINE — kcov cannot trace process substitution on done
   $DANGER_FOUND || pass "SEC-02" "security" "No dangerous ops" "Clean"
 else
   skip "SEC-02" "security" "No dangerous ops" "No scripts/"

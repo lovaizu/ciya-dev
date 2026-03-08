@@ -227,6 +227,244 @@ EOF
 # When + Then: produces 1 warning
 assert_verdict_count "no trigger phrases warns" "WARN" "1" "$t8"
 
+# --- Test: no argument ---
+# Given: no arguments passed to validate.sh
+# When + Then: exits non-zero with usage message
+if bash "$VALIDATE" >/dev/null 2>&1; then
+  echo "FAIL: no argument exits non-zero — expected non-zero exit"
+  failed=$((failed + 1))
+else
+  echo "PASS: no argument exits non-zero (exit non-zero)"
+  passed=$((passed + 1))
+fi
+
+# --- Test: case-variant SKILL.md ---
+# Given: a directory with skill.md (wrong case) instead of SKILL.md
+tc="$TMPDIR_ROOT/t-case"
+mkdir -p "$tc"
+cat > "$tc/skill.md" <<'EOF'
+---
+name: t-case
+description: Creates reports. Use when user says "test" or "run".
+---
+Instructions.
+EOF
+assert_exit_fail "case variant SKILL.md detected" "$tc"
+
+# --- Test: empty frontmatter (consecutive delimiters, no body) ---
+# Given: SKILL.md with two --- lines and nothing else
+tef="$TMPDIR_ROOT/t-ef"
+mkdir -p "$tef"
+printf '%s\n' "---" "---" > "$tef/SKILL.md"
+assert_exit_fail "empty frontmatter" "$tef"
+
+# --- Test: invalid YAML ---
+# Given: SKILL.md with invalid YAML in frontmatter
+tiy="$TMPDIR_ROOT/t-iy"
+mkdir -p "$tiy"
+printf '%s\n' "---" "name: t-iy" "!!!not valid yaml" "---" "Instructions." > "$tiy/SKILL.md"
+assert_exit_fail "invalid YAML exits non-zero" "$tiy"
+
+# --- Test: missing name and description (Grade F) ---
+# Given: SKILL.md with no name and no description fields
+tmnf="$TMPDIR_ROOT/t-mnf"
+mkdir -p "$tmnf"
+printf '%s\n' "---" "license: MIT" "---" "Instructions." > "$tmnf/SKILL.md"
+assert_grade "missing name+desc grades F" "F" "$tmnf"
+
+# --- Test: non-kebab reserved name (Grade C, > 2 fails) ---
+# Given: name with uppercase (non-kebab) AND contains reserved word
+tnkr="$TMPDIR_ROOT/t-nkr"
+mkdir -p "$tnkr"
+cat > "$tnkr/SKILL.md" <<'EOF'
+---
+name: Claude-Helper
+description: Creates test reports from data. Use when user says "run test" or "check output".
+---
+Instructions.
+EOF
+assert_grade "non-kebab reserved name grades C" "C" "$tnkr"
+
+# --- Test: vague description, no trigger (Grade D) ---
+# Given: description with vague language and no trigger conditions
+tvd="$TMPDIR_ROOT/t-vd"
+mkdir -p "$tvd"
+cat > "$tvd/SKILL.md" <<'EOF'
+---
+name: t-vd
+description: Helps with various tasks and operations.
+---
+Instructions here.
+EOF
+assert_grade "vague desc no trigger grades D" "D" "$tvd"
+
+# --- Test: no concrete verbs in description (D-01 warn) ---
+# Given: description without concrete function verbs or vague terms
+tnv="$TMPDIR_ROOT/t-nv"
+mkdir -p "$tnv"
+cat > "$tnv/SKILL.md" <<'EOF'
+---
+name: t-nv
+description: A useful thing for testing purposes. Use when user says "test" or "check".
+---
+Instructions.
+EOF
+assert_grade "no concrete verbs grades A" "A" "$tnv"
+
+# --- Test: README.md + unexpected dir + auxiliary docs ---
+# Given: a skill with README.md, unexpected directory, and auxiliary docs
+tra="$TMPDIR_ROOT/t-ra"
+mkdir -p "$tra" "$tra/extras"
+cat > "$tra/SKILL.md" <<'EOF'
+---
+name: t-ra
+description: Creates test reports from data. Use when user says "run test" or "check output".
+---
+Instructions.
+EOF
+touch "$tra/README.md" "$tra/CHANGELOG.md"
+assert_grade "readme+unexpdir+auxdoc grades C" "C" "$tra"
+
+# --- Test: description too long ---
+# Given: SKILL.md with description > 1024 characters
+tdl="$TMPDIR_ROOT/t-dl"
+mkdir -p "$tdl"
+long_desc="Creates test reports from data. Use when user says \"run test\" or \"check output\". "
+while [[ ${#long_desc} -lt 1030 ]]; do long_desc="${long_desc}Extra words for padding. "; done
+{
+  echo "---"
+  echo "name: t-dl"
+  printf 'description: %s\n' "$long_desc"
+  echo "---"
+  echo "Instructions."
+} > "$tdl/SKILL.md"
+assert_grade "description too long grades C" "C" "$tdl"
+
+# --- Test: compatibility field short ---
+# Given: SKILL.md with a short compatibility field
+tcs="$TMPDIR_ROOT/t-cs"
+mkdir -p "$tcs"
+cat > "$tcs/SKILL.md" <<'EOF'
+---
+name: t-cs
+description: Creates test reports from data. Use when user says "run test" or "check output".
+compatibility: claude-code >= 1.0
+---
+Instructions.
+EOF
+assert_grade "compatibility short grades A" "A" "$tcs"
+
+# --- Test: compatibility field too long ---
+# Given: SKILL.md with compatibility > 500 characters
+tcl="$TMPDIR_ROOT/t-cl"
+mkdir -p "$tcl"
+long_compat="claude-code >= 1.0 "
+while [[ ${#long_compat} -lt 510 ]]; do long_compat="${long_compat}and more compat "; done
+{
+  echo "---"
+  echo "name: t-cl"
+  echo 'description: Creates test reports from data. Use when user says "run test" or "check output".'
+  printf 'compatibility: %s\n' "$long_compat"
+  echo "---"
+  echo "Instructions."
+} > "$tcl/SKILL.md"
+assert_grade "compatibility too long grades C" "C" "$tcl"
+
+# --- Test: body > 500 lines (I-05 warn) ---
+# Given: SKILL.md with body between 501 and 1000 lines
+tbw="$TMPDIR_ROOT/t-bw"
+mkdir -p "$tbw"
+{
+  echo "---"
+  echo "name: t-bw"
+  echo 'description: Creates test reports from data. Use when user says "run test" or "check output".'
+  echo "---"
+  seq 1 510
+} > "$tbw/SKILL.md"
+assert_grade "body 510 lines grades A" "A" "$tbw"
+
+# --- Test: body > 1000 lines (I-05 fail) ---
+# Given: SKILL.md with body > 1000 lines
+tbf="$TMPDIR_ROOT/t-bf"
+mkdir -p "$tbf"
+{
+  echo "---"
+  echo "name: t-bf"
+  echo 'description: Creates test reports from data. Use when user says "run test" or "check output".'
+  echo "---"
+  seq 1 1010
+} > "$tbf/SKILL.md"
+assert_grade "body 1010 lines grades C" "C" "$tbf"
+
+# --- Test: MUST density good ---
+# Given: SKILL.md with MUST keywords but good density (>= 200 words/keyword)
+tmg="$TMPDIR_ROOT/t-mg"
+mkdir -p "$tmg"
+{
+  echo "---"
+  echo "name: t-mg"
+  echo 'description: Creates test reports from data. Use when user says "run test" or "check output".'
+  echo "---"
+  for i in $(seq 1 50); do echo "This is line $i of instruction content with several words in it."; done
+  echo "You MUST follow this guideline."
+} > "$tmg/SKILL.md"
+assert_grade "MUST density good grades A" "A" "$tmg"
+
+# --- Test: dangerous operations in scripts ---
+# Given: a skill with scripts containing dangerous patterns
+tdo="$TMPDIR_ROOT/t-do"
+mkdir -p "$tdo/scripts"
+cat > "$tdo/SKILL.md" <<'EOF'
+---
+name: t-do
+description: Creates test reports from data. Use when user says "run test" or "check output".
+---
+Instructions.
+EOF
+# Build dangerous pattern at runtime to avoid matching SEC-02 in this test file
+printf '#!/bin/bash\n%s apt-get install package\n' "su""do" > "$tdo/scripts/setup.sh"
+assert_grade "dangerous ops in scripts grades A" "A" "$tdo"
+
+# --- Test: hardcoded secrets ---
+# Given: a skill with a file containing secret patterns
+tse="$TMPDIR_ROOT/t-se"
+mkdir -p "$tse/scripts"
+cat > "$tse/SKILL.md" <<'EOF'
+---
+name: t-se
+description: Creates test reports from data. Use when user says "run test" or "check output".
+---
+Instructions.
+EOF
+# Build secret pattern at runtime to avoid matching SEC-03 in this test file
+field="api""_key"
+kp="sk-"
+kb="$(printf 'a%.0s' {1..30})"
+printf '%s = "%s%s"\n' "$field" "$kp" "$kb" > "$tse/scripts/config.py"
+assert_grade "secret in script grades C" "C" "$tse"
+
+# --- Test: Grade B (4+ warns, 0 fails) ---
+# Given: a skill that produces 4+ warnings but no failures
+tgb="$TMPDIR_ROOT/t-gb"
+mkdir -p "$tgb" "$tgb/extras"
+cat > "$tgb/SKILL.md" <<'EOF'
+---
+name: t-gb
+description: A useful thing for testing purposes. Use when user says "test".
+---
+MUST do this.
+MUST do that.
+MUST always check.
+MUST never skip.
+MUST verify everything.
+ALWAYS follow rules.
+NEVER ignore warnings.
+CRITICAL to remember.
+EOF
+touch "$tgb/CHANGELOG.md"
+# S-05 warn (extras/), S-06 warn (CHANGELOG), D-01 warn (no verbs), D-03 warn (1 phrase), I-07 warn (MUST density)
+assert_grade "4+ warns 0 fails grades B" "B" "$tgb"
+
 # --- Test: skill-smith validates itself ---
 # Given: the skill-smith skill directory itself
 assert_grade "skill-smith self-validation" "A" "$SCRIPT_DIR/.."
